@@ -17,6 +17,11 @@ public abstract class Register<T>
 
     protected T Value { get; set; }
     
+    public T GetValue()
+    {
+        return Value;
+    }
+    
     public void SetValue(T value)
     {
         Value = value;
@@ -62,10 +67,40 @@ public class RegisterFlags : Register8
 
     private bool IsBitSet(int bitNumber) => (Value & (1 << bitNumber - 1)) != 0;
     
-    public bool ZeroFlag => IsBitSet(7);
-    public bool SubtractFlag => IsBitSet(6);
-    public bool HalfCarryFlag => IsBitSet(5);
-    public bool CarryFlag => IsBitSet(4);
+    private void SetBit(int bitNumber, bool value)
+    {
+        if (value)
+        {
+            Value |= (byte)(1 << bitNumber - 1);
+        }
+        else
+        {
+            Value &= (byte)~(1 << bitNumber - 1);
+        }
+    }
+    
+    public bool ZeroFlag { 
+        get => IsBitSet(7);
+        set => SetBit(7, value);
+    }
+
+    public bool SubtractFlag
+    {
+        get => IsBitSet(6);
+        set => SetBit(6, value);
+    }
+
+    public bool HalfCarryFlag
+    {
+        get => IsBitSet(5);
+        set => SetBit(5, value);
+    }
+
+    public bool CarryFlag
+    {
+        get => IsBitSet(4);
+        set => SetBit(4, value);
+    }
 }
 
 public class Register16 : Register<ushort>
@@ -91,13 +126,11 @@ public class Register16 : Register<ushort>
 
     public static Register16 operator +(Register16 register, ushort value)
     {
-        register.Value += value;
-        return register;
+        return new((ushort)(register.Value + value));
     }
     
     public static Register16 operator -(Register16 register, ushort value)
     {
-        register.Value -= value;
-        return register;
+        return new((ushort)(register.Value - value));
     }
 }

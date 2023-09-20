@@ -29,6 +29,13 @@ var cpu = new Cpu(addressBus);
 for (var i = 0; i < 100; i++)
 {
     cpu.Step();
+
+    if (cpu.LastInstruction == null)
+    {
+        break;
+    }
 }
+
+Console.WriteLine(cpu);
 
 return 1;

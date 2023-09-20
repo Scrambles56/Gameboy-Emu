@@ -99,7 +99,7 @@ Cartridge
     CalculatedChecksum: {{CalculateHeaderChecksum()}}
     HeaderChecksumIsValid: {{HeaderChecksumIsValid}}
 
-    EntryPoint: {{string.Join(",", EntryPointBytes)}}
+    EntryPoint: {{string.Join(",", EntryPointBytes.Select(b => b.ToString("X2")))}}
 """;
     }
 }

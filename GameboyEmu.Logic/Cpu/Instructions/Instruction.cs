@@ -5,17 +5,16 @@ public enum Instr
     Noop,
     Jump,
     Xor,
-    Ld
+    Ld,
+    Cp
 }
 
-public enum AddressingMode
+public enum InstructionSize
 {
-    Impl,
-    D16,
-    Register,
-    R_D16,
-    D8
-}
+    None,
+    D8,
+    D16
+}   
 
 public enum RegisterType
 {
@@ -44,31 +43,25 @@ public enum Condition
     NZ
 }
 
-public class Instruction
+public abstract class Instruction
 {
-    private readonly Action<GameboyEmu.Cpu.Cpu, ushort>? _action;
-
-    public Instruction(
+    protected Instruction(
         byte opcode, 
         string mnemonic, 
         int cycles, 
         Instr instr, 
-        AddressingMode addressingMode = AddressingMode.Impl, 
+        InstructionSize instructionSize = InstructionSize.None, 
         RegisterType register1 = RegisterType.None, 
-        RegisterType register2 = RegisterType.None, 
-        Condition condition = Condition.None,
-        Action<GameboyEmu.Cpu.Cpu, ushort>? action = null
+        RegisterType register2 = RegisterType.None
     )
     {
-        _action = action;
         Opcode = opcode;
         Mnemonic = mnemonic;
         Cycles = cycles;
         Instr = instr;
-        AddressingMode = addressingMode;
+        InstructionSize = instructionSize;
         Register1 = register1;
         Register2 = register2;
-        Condition = condition;
     }
 
     public byte Opcode { get; }
@@ -76,15 +69,43 @@ public class Instruction
     public int Cycles { get; }
     
     public Instr Instr { get; }
-    public AddressingMode AddressingMode { get; }
+    public InstructionSize InstructionSize { get; }
     public RegisterType Register1 { get; }
     public RegisterType Register2 { get; }
-    public Condition Condition { get; }
-
-    public void Execute(GameboyEmu.Cpu.Cpu cpu, ushort data) => _action?.Invoke(cpu, data);
     
-    public override string ToString()
-    {
-        return $"{Opcode:X2}: {Mnemonic}";
-    }
+    public abstract void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data);
+    
+    public FetchedData FetchData(GameboyEmu.Cpu.Cpu cpu) =>
+        InstructionSize switch
+        {
+            InstructionSize.None => new(),
+            InstructionSize.D8 => new(cpu.ReadNextByte()),
+            InstructionSize.D16 => new(cpu.ReadNextByte(), cpu.ReadNextByte()),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+    public override string ToString() => $"{Opcode:X2}: {Mnemonic}";
 }
+
+public record FetchedData(byte? Byte1 = null, byte? Byte2 = null)
+{
+    public ushort ToUshort()
+    {
+        if (Byte1 is null || Byte2 is null)
+        {
+            throw new InvalidOperationException("Cannot convert to ushort when one of the bytes is null");
+        }
+
+        return (ushort)((Byte2 << 8) | Byte1);
+    }
+    
+    public byte ToByte()
+    {
+        if (Byte1 is null)
+        {
+            throw new InvalidOperationException("Cannot convert to byte when one of the bytes is null");
+        }
+
+        return (byte)Byte1;
+    }
+};
