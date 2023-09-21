@@ -8,7 +8,8 @@ namespace GameboyEmu.Logic.Cpu;
 
 public class AddressBus
 {
-    public bool InterruptsEnabled { get; private set; } = false;
+    public byte EnabledInterrupts { get; private set; }
+    public bool InterruptMasterEnabledFlag { get; set; } = false;
     private readonly LoadedCartridge _cartridge;
     private readonly WorkRAM _lowerWorkRam;
     private readonly WorkRAM _upperWorkRam;
@@ -71,7 +72,8 @@ public class AddressBus
         
         if (address == 0xFFFF)
         {
-            return InterruptsEnabled ? (byte) 0xFF : (byte) 0x00;
+            var mask = (byte)(InterruptMasterEnabledFlag ? 0xFF : 0x00);
+            return (byte)(EnabledInterrupts & mask);
         }
 
         throw new NotImplementedException($"Not implemented reads for Address: {address:X4}");
@@ -119,7 +121,7 @@ public class AddressBus
         
         if (address == 0xFFFF)
         {
-            InterruptsEnabled = value != 0x00;
+            EnabledInterrupts = value;
             return;
         }
 

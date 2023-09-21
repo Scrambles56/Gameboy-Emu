@@ -1,4 +1,5 @@
-﻿using GameboyEmu.Logic.Cpu;
+﻿using System.Text;
+using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Cpu.Instructions;
 using static GameboyEmu.Logic.Cpu.Instructions.Instructions;
@@ -131,10 +132,34 @@ public class Cpu
         var f = F.GetValue();
         var h = H.GetValue();
         var l = L.GetValue();
-        var sp = SP.GetValue(); 
+        var sp = SP.GetValue();
+        var interrupts = _addressBus.EnabledInterrupts;
         
-        Console.WriteLine($"{pc:X4}: ({opcode:X2})  {mnemonic,-20} {FetchedData,-20} {inst?.InstructionSize.ToString(),-10} A: {a:X2} B: {b:X2} C: {c:X2} D: {d:X2} E: {e:X2} H: {h:X2} L: {l:X2} SP: {sp:X4}  \t Flags: Carry: {(F.CarryFlag?1:0)}, Zero: {(F.ZeroFlag?1:0)}, HalfCarry: {(F.HalfCarryFlag?1:0)}, Subtract: {(F.SubtractFlag?1:0)}, IME: {(_addressBus.InterruptsEnabled?1:0)}");
-    }
+        var logString = new StringBuilder()
+            .Append($"{pc.ToString("X4")}: ")
+            .Append($"({opcode.ToString("X2")}) {mnemonic,-20} ")
+            .Append($"{FetchedData,-20} ")
+            .Append($"{inst?.InstructionSize.ToString(),-10} ")
+            .Append($"A: {a:X2} ")
+            .Append($"B: {b:X2} ")
+            .Append($"C: {c:X2} ")
+            .Append($"D: {d:X2} ")
+            .Append($"E: {e:X2} ")
+            .Append($"H: {h:X2} ")
+            .Append($"L: {l:X2} ")
+            .Append($"SP: {sp:X4} \t")
+            .Append("Flags: ")
+            .Append($"Carry: {(F.CarryFlag?1:0)}, ")
+            .Append($"Zero: {(F.ZeroFlag?1:0)}, ")
+            .Append($"HalfCarry: {(F.HalfCarryFlag?1:0)}, ")
+            .Append($"Subtract: {(F.SubtractFlag?1:0)} \t")
+            .Append("Interrupts: ")
+            .Append($"IME: {(_addressBus.InterruptMasterEnabledFlag?1:0)}")
+            .ToString();
+            
+            
+            Console.WriteLine(logString);
+        }
 
     public void WriteByteRegister(RegisterType registerType, byte value)
     {
@@ -259,4 +284,9 @@ L: {{L}}
     public Instruction? LastInstruction { get; set; } = null;
     
     private Dictionary<string, int> MissingInstructions { get; set; } = new();
+
+    public void SetInterruptMasterFlag(bool state)  
+    {
+        _addressBus.InterruptMasterEnabledFlag = state;
+    }
 }

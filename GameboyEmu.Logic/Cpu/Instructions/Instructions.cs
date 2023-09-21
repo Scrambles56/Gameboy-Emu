@@ -40,7 +40,7 @@ public static class Instructions
                 "XOR A",
                 4,
                 register1: RegisterType.A,
-                action: (instr, cpu, data) =>
+                action: (instr, cpu, _) =>
                 {
                     var newA = cpu.ReadByteRegister(instr.Register1) ^ cpu.A;
                     cpu.A.SetValue((byte)newA);
@@ -66,9 +66,9 @@ public static class Instructions
                 0xF3,
                 "DI",
                 4,
-                action: (instruction, cpu, data) =>
+                action: (_, cpu, _) =>
                 {
-                    cpu.WriteByte(0xFFFF, 0);
+                    cpu.SetInterruptMasterFlag(false);
                 }
             ),
             new GenericInstruction(
@@ -100,7 +100,7 @@ public static class Instructions
                 "CALL a16",
                 24,
                 InstructionSize.D16,
-                action: (instruction, cpu, data) =>
+                action: (_, cpu, data) =>
                 {
                     var value = data.ToUshort();
                     cpu.SP--;
@@ -113,7 +113,7 @@ public static class Instructions
                 0xCB,
                 "PREFIX CB",
                 4,
-                action: (instruction, cpu, data) =>
+                action: (_, cpu, _) =>
                 {
                     cpu.cbMode = true;
                 }
