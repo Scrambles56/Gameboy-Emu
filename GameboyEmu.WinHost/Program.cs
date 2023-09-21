@@ -1,7 +1,12 @@
 ﻿using GameboyEmu.Cpu;
 using GameboyEmu.Logic.Cartridge;
 using GameboyEmu.Logic.Cpu;
+using GameboyEmu.Logic.Cpu.Instructions;
+using GameboyEmu.Logic.IOController;
+using GameboyEmu.Logic.Memory;
 using Microsoft.Extensions.Configuration;
+
+var printMode = true;
 
 var configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
@@ -19,20 +24,45 @@ var cartridge = await new Cartridge(rom).Load();
 Console.WriteLine(cartridge);
 Console.WriteLine();
 Console.WriteLine();
-Console.WriteLine();
 
 
-
-var addressBus = new AddressBus(cartridge);
+var lowerWorkram = new WorkRAM(0xC000);
+var upperWorkram = new WorkRAM(0xD000);
+var highRam = new HighRam();
+var ioBus = new IOBus();
+var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus);
 var cpu = new Cpu(addressBus);
 
-for (var i = 0; i < 100; i++)
+if (printMode)
 {
-    cpu.Step();
+    Instructions.PrintInstructionTable(cpu);
+    cpu.cbMode = true;
+    Console.WriteLine("\n\n");
+    Instructions.PrintInstructionTable(cpu);
+    return 1;
+}
 
-    if (cpu.LastInstruction == null)
+var instructionsExecutedCount = 0;
+while(true)
+{
+    try
     {
-        break;
+        cpu.Step();
+
+        if (cpu.LastInstruction == null)
+        {
+            break;
+        }
+
+        instructionsExecutedCount++;
+    }
+    catch
+    {
+        Console.WriteLine("Instructions Executed: {0} \n\n\n", instructionsExecutedCount);
+        
+        Console.WriteLine(cartridge);
+        Console.WriteLine(cpu);
+        throw;
     }
 }
 

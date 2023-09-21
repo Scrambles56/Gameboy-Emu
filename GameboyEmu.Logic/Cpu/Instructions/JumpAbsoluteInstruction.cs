@@ -80,7 +80,7 @@ public static class JumpInstructions
 
 public class JumpAbsoluteInstruction : Instruction
 {
-    public Condition Condition { get; }
+    private Condition Condition { get; }
 
     public JumpAbsoluteInstruction(
             byte opcode, 
@@ -90,7 +90,7 @@ public class JumpAbsoluteInstruction : Instruction
             RegisterType register1 = RegisterType.None, 
             RegisterType register2 = RegisterType.None, 
             Condition condition = Condition.None) 
-        : base(opcode, mnemonic, cycles, Instr.Jump, instructionSize, register1, register2)
+        : base(opcode, mnemonic, cycles, instructionSize, register1, register2)
     {
         Condition = condition;
         Debug.Assert(InstructionSize != InstructionSize.D8);
@@ -119,7 +119,7 @@ public class JumpRelativeInstruction : Instruction
         RegisterType register1 = RegisterType.None, 
         RegisterType register2 = RegisterType.None, 
         Condition condition = Condition.None) 
-        : base(opcode, mnemonic, cycles, Instr.Jump, instructionSize, register1, register2)
+        : base(opcode, mnemonic, cycles, instructionSize, register1, register2)
     {
         Condition = condition;
         
@@ -132,15 +132,18 @@ public class JumpRelativeInstruction : Instruction
         {
             return;
         }
+
+        var offset = (sbyte)data.ToByte();
         
-        cpu.PC += data.ToByte();
+        var pcVal = (ushort)(cpu.PC + offset);
+        cpu.PC = pcVal;
     }
 }
 
 public class JumpHLInstruction : Instruction
 {
     public JumpHLInstruction() 
-        : base(0xE9, "jp HL", 4, Instr.Jump)
+        : base(0xE9, "jp HL", 4)
     {
     }
 

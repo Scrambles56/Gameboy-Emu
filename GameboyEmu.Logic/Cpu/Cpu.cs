@@ -1,4 +1,5 @@
 ﻿using GameboyEmu.Logic.Cpu;
+using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Cpu.Instructions;
 using static GameboyEmu.Logic.Cpu.Instructions.Instructions;
 
@@ -7,7 +8,7 @@ namespace GameboyEmu.Cpu;
 public class Cpu
 {
     public Register8 A { get; set; } = new(0x01);
-    public Register8 B { get; set; } = new(0x00);
+    public Register8 B { get; set; } = new(0xFF);
     public Register8 C { get; set; } = new(0x13);
     public Register8 D { get; set; } = new(0x00);
     public Register8 E { get; set; } = new(0xD8);
@@ -15,10 +16,54 @@ public class Cpu
     public Register8 H { get; set; } = new(0x01);
     public Register8 L { get; set; } = new(0x4D);
     
-    public Register16 AF => new((ushort)((A << 8) | F));
-    public Register16 BC => new((ushort)((B << 8) | C));
-    public Register16 DE => new((ushort)((D << 8) | E));
-    public Register16 HL => new((ushort)((H << 8) | L));
+    public Register16 AF
+    {
+        get => new((ushort)((A << 8) | F));
+        set
+        {
+            var (high, low) = value.GetValue().ToBytes();
+            
+            A.SetValue(high);
+            F.SetValue(low);
+        }
+    }
+
+    public Register16 BC
+    {
+        get => new((ushort)((B << 8) | C));
+        set
+        {
+            var (high, low) = value.GetValue().ToBytes();
+            
+            B.SetValue(high);
+            C.SetValue(low);
+        }
+    }
+
+    public Register16 DE
+    {
+        get => new((ushort)((D << 8) | E));
+        set
+        {
+            var (high, low) = value.GetValue().ToBytes();
+            
+            D.SetValue(high);
+            E.SetValue(low);
+        }
+    }
+
+    public Register16 HL
+    {
+        get => new((ushort)((H << 8) | L));
+        set
+        {
+            var (high, low) = value.GetValue().ToBytes();
+            
+            H.SetValue(high);
+            L.SetValue(low);
+        }
+
+    }
 
     public Register16 SP { get; set; } = new(0xFFFE);
     public Register16 PC { get; set; } = new(0x100);
@@ -26,9 +71,8 @@ public class Cpu
     private AddressBus _addressBus;
 
     private FetchedData? FetchedData { get; set; }
-    public Instruction? LastInstruction { get; set; } = null;
-    
-    private Dictionary<string, int> MissingInstructions { get; set; } = new();
+
+    public bool cbMode = false;
 
     public Cpu(AddressBus addressBus)
     {
@@ -42,30 +86,107 @@ public class Cpu
         PC++;
         return value;
     }
+    
+    public void WriteByte(ushort address, byte value)
+    {
+        _addressBus.WriteByte(address, value);
+    }
+
+    public byte ReadByte(ushort address) => _addressBus.ReadByte(address);
 
     public void Step()
     {
         ushort currentPc = PC;
         var opCode = ReadNextByte();
-        var instruction = GetInstruction(opCode);
-        LogCurrentState(instruction, opCode, currentPc);
+        var instruction = GetInstruction(opCode, this);
 
         if (instruction is not null)
         {
             FetchedData = instruction.FetchData(this);
+            LogCurrentState(instruction, opCode, currentPc);
             instruction.Execute(this, FetchedData);
+        }
+        else
+        {
+            LogCurrentState(instruction, opCode, currentPc);
         }
 
         LastInstruction = instruction;
+        FetchedData = null;
     }
     
     private void LogCurrentState(Instruction? inst, byte opcode, ushort pc)
     {
         var mnemonic = inst?.Mnemonic ?? "UNKN";
-        var byte1 = _addressBus.ReadByte(PC + 1);
-        var byte2 = _addressBus.ReadByte(PC + 2);
         
-        Console.WriteLine($"{pc:X4}: ({opcode:X2})  {mnemonic} ({byte1:X2}, {byte2:X2})");
+        var a = A.GetValue();
+        var b = B.GetValue();
+        var c = C.GetValue();
+        var d = D.GetValue();
+        var e = E.GetValue();
+        var f = F.GetValue();
+        var h = H.GetValue();
+        var l = L.GetValue();
+        var sp = SP.GetValue(); 
+        
+        Console.WriteLine($"{pc:X4}: ({opcode:X2})  {mnemonic,-20} {FetchedData,-20} {inst?.InstructionSize.ToString(),-10} A: {a:X2} B: {b:X2} C: {c:X2} D: {d:X2} E: {e:X2} H: {h:X2} L: {l:X2} SP: {sp:X4}  \t Flags: Carry: {(F.CarryFlag?1:0)}, Zero: {(F.ZeroFlag?1:0)}, HalfCarry: {(F.HalfCarryFlag?1:0)}, Subtract: {(F.SubtractFlag?1:0)}, IME: {(_addressBus.InterruptsEnabled?1:0)}");
+    }
+
+    public void WriteByteRegister(RegisterType registerType, byte value)
+    {
+        switch (registerType)
+        {
+            case RegisterType.A:
+                A.SetValue(value);
+                break;
+            case RegisterType.B:
+                B.SetValue(value);
+                break;
+            case RegisterType.C:
+                C.SetValue(value);
+                break;
+            case RegisterType.D:
+                D.SetValue(value);
+                break;
+            case RegisterType.E:
+                E.SetValue(value);
+                break;
+            case RegisterType.H:
+                H.SetValue(value);
+                break;
+            case RegisterType.L:
+                L.SetValue(value);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null);
+        }
+    }
+    
+    public void WriteUshortRegister(RegisterType registerType, ushort value)
+    {
+        switch (registerType)
+        {
+            case RegisterType.AF:
+                AF = value;
+                break;
+            case RegisterType.BC:
+                BC = value;
+                break;
+            case RegisterType.DE:
+                DE = value;
+                break;
+            case RegisterType.HL:
+                HL = value;
+                break;
+            case RegisterType.SP:
+                SP.SetValue(value);
+                break;
+            case RegisterType.PC:
+                PC.SetValue(value);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null);
+        }
     }
 
     public byte ReadByteRegister(RegisterType registerType)
@@ -129,4 +250,9 @@ L: {{L}}
             _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
         };
     }
+    
+    
+    public Instruction? LastInstruction { get; set; } = null;
+    
+    private Dictionary<string, int> MissingInstructions { get; set; } = new();
 }

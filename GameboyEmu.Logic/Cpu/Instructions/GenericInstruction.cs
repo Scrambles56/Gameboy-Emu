@@ -8,13 +8,12 @@ public class GenericInstruction : Instruction
         byte opcode, 
         string mnemonic, 
         int cycles, 
-        Instr instr, 
         InstructionSize instructionSize = InstructionSize.None, 
         RegisterType register1 = RegisterType.None, 
         RegisterType register2 = RegisterType.None,
         Action<Instruction, GameboyEmu.Cpu.Cpu, FetchedData>? action = null
     ) 
-        : base(opcode, mnemonic, cycles, instr, instructionSize, register1, register2)
+        : base(opcode, mnemonic, cycles, instructionSize, register1, register2)
     {
         _action = action;
     }

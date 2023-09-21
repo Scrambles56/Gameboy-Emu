@@ -1,14 +1,5 @@
 ﻿namespace GameboyEmu.Logic.Cpu.Instructions;
 
-public enum Instr
-{
-    Noop,
-    Jump,
-    Xor,
-    Ld,
-    Cp
-}
-
 public enum InstructionSize
 {
     None,
@@ -49,7 +40,6 @@ public abstract class Instruction
         byte opcode, 
         string mnemonic, 
         int cycles, 
-        Instr instr, 
         InstructionSize instructionSize = InstructionSize.None, 
         RegisterType register1 = RegisterType.None, 
         RegisterType register2 = RegisterType.None
@@ -58,7 +48,6 @@ public abstract class Instruction
         Opcode = opcode;
         Mnemonic = mnemonic;
         Cycles = cycles;
-        Instr = instr;
         InstructionSize = instructionSize;
         Register1 = register1;
         Register2 = register2;
@@ -67,8 +56,6 @@ public abstract class Instruction
     public byte Opcode { get; }
     public string Mnemonic { get; }
     public int Cycles { get; }
-    
-    public Instr Instr { get; }
     public InstructionSize InstructionSize { get; }
     public RegisterType Register1 { get; }
     public RegisterType Register2 { get; }
@@ -107,5 +94,14 @@ public record FetchedData(byte? Byte1 = null, byte? Byte2 = null)
         }
 
         return (byte)Byte1;
+    }
+    
+    public override string ToString()
+    {
+        return Byte1 is null 
+            ? "" 
+            : Byte2 is null
+                ? $"{Byte1:X2} ({Byte1})" 
+                : $"{Byte1:X2} {Byte2:X2}, ({Byte1}) ({Byte2})";
     }
 };

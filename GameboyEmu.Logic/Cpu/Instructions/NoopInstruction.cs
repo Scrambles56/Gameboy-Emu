@@ -6,8 +6,7 @@ public class NoopInstruction : Instruction
         : base(
             0x00,
             "NOP",
-            4,
-            Instr.Noop
+            4
         )
     {
     }

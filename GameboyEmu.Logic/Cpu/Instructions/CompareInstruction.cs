@@ -6,12 +6,11 @@ public class CompareInstruction : Instruction
         byte opcode, 
         string mnemonic, 
         int cycles, 
-        Instr instr, 
         InstructionSize instructionSize = InstructionSize.None, 
         RegisterType register1 = RegisterType.None, 
         RegisterType register2 = RegisterType.None
         ) 
-        : base(opcode, mnemonic, cycles, instr, instructionSize, register1, register2)
+        : base(opcode, mnemonic, cycles, instructionSize, register1, register2)
     {
     }
 
