@@ -6,7 +6,7 @@ using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
 using Microsoft.Extensions.Configuration;
 
-var printMode = true;
+var printMode = false;
 
 var configuration = new ConfigurationBuilder()
     .AddCommandLine(args)

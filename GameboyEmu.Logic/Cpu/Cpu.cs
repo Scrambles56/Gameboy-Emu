@@ -8,11 +8,11 @@ namespace GameboyEmu.Cpu;
 public class Cpu
 {
     public Register8 A { get; set; } = new(0x01);
-    public Register8 B { get; set; } = new(0xFF);
+    public Register8 B { get; set; } = new(0x00);
     public Register8 C { get; set; } = new(0x13);
     public Register8 D { get; set; } = new(0x00);
     public Register8 E { get; set; } = new(0xD8);
-    public RegisterFlags F { get; set; } = new();
+    public RegisterFlags F { get; set; } = new(0xB0);
     public Register8 H { get; set; } = new(0x01);
     public Register8 L { get; set; } = new(0x4D);
     
@@ -73,6 +73,7 @@ public class Cpu
     private FetchedData? FetchedData { get; set; }
 
     public bool cbMode = false;
+    private Dictionary<string, int> _executedInstructions = new();
 
     public Cpu(AddressBus addressBus)
     {
@@ -105,11 +106,14 @@ public class Cpu
             FetchedData = instruction.FetchData(this);
             LogCurrentState(instruction, opCode, currentPc);
             instruction.Execute(this, FetchedData);
+            
+            _executedInstructions[instruction.Mnemonic] = _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
         }
         else
         {
             LogCurrentState(instruction, opCode, currentPc);
         }
+        
 
         LastInstruction = instruction;
         FetchedData = null;

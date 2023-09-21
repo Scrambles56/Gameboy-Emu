@@ -77,7 +77,7 @@ public class DecrementRegisterInstruction : Instruction
     {
         var regVal = cpu.ReadByteRegister(Register1);
         regVal--;
-        cpu.WriteByteRegister(RegisterType.B, regVal);
+        cpu.WriteByteRegister(Register1, regVal);
                     
         cpu.F.ZeroFlag = regVal == 0;
         cpu.F.SubtractFlag = true;
