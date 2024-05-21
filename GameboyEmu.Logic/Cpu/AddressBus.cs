@@ -30,7 +30,12 @@ public class AddressBus
         Debug.Assert(!address.IsBetween(0xE000, 0xFDFF), "Reading from ECHO Ram");
         Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Reading from Unusable Memory");
         
-        if (address.IsBetween(0x0000, 0x7FFF))
+        if (address.IsBetween(0x0000, 0x00FF))
+        {
+            return BootRoms.GameboyClassic[address];
+        }
+        
+        if (address.IsBetween(0x0100, 0x7FFF))
         {
             return _cartridge.Read(address);
         }
@@ -81,9 +86,14 @@ public class AddressBus
     
     public void WriteByte(ushort address, byte value)
     {
-        Debug.Assert(address >= 0x8000, "Writing to Cartridge");
         Debug.Assert(!address.IsBetween(0xE000, 0xFDFF), "Writing to ECHO Ram");
         Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Writing to Unusable Memory");
+        
+        if (address.IsBetween(0x0000, 0x7FFF))
+        {
+            _cartridge.Write(address, value);
+            return;
+        }
 
         if (address.IsBetween(0x8000, 0x9FFF))
         {

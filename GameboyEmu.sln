@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.WinHost", "GameboyEmu.WinHost\GameboyEmu.WinHost.csproj", "{B69E2650-CF3E-4074-B0D9-C3155407283A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Host", "GameboyEmu.Host\GameboyEmu.Host.csproj", "{B69E2650-CF3E-4074-B0D9-C3155407283A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Logic", "GameboyEmu.Logic\GameboyEmu.Logic.csproj", "{1F1B594E-B96D-4ACE-91E1-50AFAFC4EE86}"
 EndProject

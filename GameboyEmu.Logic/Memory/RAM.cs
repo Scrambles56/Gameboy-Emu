@@ -2,39 +2,39 @@ using System.Diagnostics;
 
 namespace GameboyEmu.Logic.Memory;
 
-public abstract class RAM : IMemoryAddressable
+public class RAM : IMemoryAddressable
 {
-    private readonly ushort _lowerBound;
-    protected readonly byte[] _data ;
-    protected readonly bool[] _written;
+    protected readonly ushort LowerBound;
+    protected readonly byte[] Data;
+    protected readonly bool[] Written;
 
-    protected RAM(int size, ushort lowerBound)
+    public RAM(int size, ushort lowerBound)
     {
-        _lowerBound = lowerBound;
-        _data = new byte[size];
-        _written = new bool[size];
+        LowerBound = lowerBound;
+        Data = new byte[size];
+        Written = new bool[size];
         
         Init();
     }
 
     private void Init()
     {
-        for (var i = 0; i < _data.Length; i++)
+        for (var i = 0; i < Data.Length; i++)
         {
-            _data[i] = 0x00;
+            Data[i] = 0x00;
         }
     }
 
-    public byte ReadByte(ushort address)
+    public virtual byte ReadByte(ushort address)
     {
-        Debug.Assert(_written[address - _lowerBound]);
+        Debug.Assert(Written[address - LowerBound]);
         
-        return _data[address - _lowerBound];
+        return Data[address - LowerBound];
     }
     
     public void WriteByte(ushort address, byte value)
     {
-        _data[address - _lowerBound] = value;
-        _written[address - _lowerBound] = true;
+        Data[address - LowerBound] = value;
+        Written[address - LowerBound] = true;
     }
 }

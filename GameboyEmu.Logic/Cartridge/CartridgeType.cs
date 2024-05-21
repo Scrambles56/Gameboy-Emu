@@ -10,6 +10,17 @@ public class CartridgeType
     }
 
     public string ByteString() => _value.ToString("X2");
+    
+    public MbcType MbcType => _value switch
+    {
+        0x01 or 0x02 or 0x03 => MbcType.Mbc1,
+        0x05 or 0x06 => MbcType.Mbc2,
+        0x0F or 0x10 or 0x11 or 0x12 or 0x13 => MbcType.Mbc3,
+        0x19 or 0x1A or 0x1B => MbcType.Mbc5,
+        0x20 => MbcType.Mbc6,
+        0x22 => MbcType.Mbc7,
+        _ => MbcType.NoMbc
+    };
 
     public override string ToString()
     {
@@ -46,4 +57,14 @@ public class CartridgeType
             _ => "Unknown"
         };
     }
+}
+
+public enum MbcType {
+    NoMbc,
+    Mbc1,
+    Mbc2,
+    Mbc3,
+    Mbc5,
+    Mbc6,
+    Mbc7
 }
