@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Host", "GameboyE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Logic", "GameboyEmu.Logic\GameboyEmu.Logic.csproj", "{1F1B594E-B96D-4ACE-91E1-50AFAFC4EE86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Logic.Tests", "GameboyEmu.Logic.Tests\GameboyEmu.Logic.Tests.csproj", "{EC87E08A-D9DB-4199-8F6B-427A94EC5D66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameboyEmu.Logic.Tests", "GameboyEmu.Logic.Tests\GameboyEmu.Logic.Tests.csproj", "{CC82804C-1981-4F28-81C0-100408ED4341}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{1F1B594E-B96D-4ACE-91E1-50AFAFC4EE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F1B594E-B96D-4ACE-91E1-50AFAFC4EE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F1B594E-B96D-4ACE-91E1-50AFAFC4EE86}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC87E08A-D9DB-4199-8F6B-427A94EC5D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC87E08A-D9DB-4199-8F6B-427A94EC5D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC87E08A-D9DB-4199-8F6B-427A94EC5D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC87E08A-D9DB-4199-8F6B-427A94EC5D66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC82804C-1981-4F28-81C0-100408ED4341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC82804C-1981-4F28-81C0-100408ED4341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC82804C-1981-4F28-81C0-100408ED4341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC82804C-1981-4F28-81C0-100408ED4341}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

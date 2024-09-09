@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using GameboyEmu.Logic.Cartridge;
 using GameboyEmu.Logic.Cpu.Extensions;
+using GameboyEmu.Logic.Gpu;
 using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
 
@@ -15,14 +16,16 @@ public class AddressBus
     private readonly WorkRAM _upperWorkRam;
     private readonly HighRam _highRam;
     private readonly IOBus _ioBus;
+    private readonly VRam _vram;
 
-    public AddressBus(LoadedCartridge cartridge, WorkRAM lowerWorkRam, WorkRAM upperWorkRam, HighRam highRam, IOBus ioBus)
+    public AddressBus(LoadedCartridge cartridge, WorkRAM lowerWorkRam, WorkRAM upperWorkRam, HighRam highRam, IOBus ioBus, VRam vram)
     {
         _cartridge = cartridge;
         _lowerWorkRam = lowerWorkRam;
         _upperWorkRam = upperWorkRam;
         _highRam = highRam;
         _ioBus = ioBus;
+        _vram = vram;
     }
     
     public byte ReadByte(ushort address)
@@ -42,7 +45,7 @@ public class AddressBus
         
         if (address.IsBetween(0x8000, 0x9FFF))
         {
-            throw new NotImplementedException($"Not implemented reads for Video RAM, Address: {address:X4}");
+            return _vram.ReadByte(address);
         }
         
         if (address.IsBetween(0xA000, 0xBFFF))
@@ -97,7 +100,8 @@ public class AddressBus
 
         if (address.IsBetween(0x8000, 0x9FFF))
         {
-            throw new NotImplementedException($"Not implemented writes for Video RAM, Address: {address:X4}");
+            _vram.WriteByte(address, value);
+            return;
         }
         
         if (address.IsBetween(0xA000, 0xBFFF))

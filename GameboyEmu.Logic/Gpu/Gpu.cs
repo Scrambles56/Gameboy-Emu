@@ -4,13 +4,14 @@ namespace GameboyEmu.Logic.Gpu;
 
 public class Gpu
 {
+    private readonly VRam _vram;
     private readonly LcdControl _lcdControl;
-    public VRam Vram { get; set; } = new();
 
     private byte[] FrameBuffer = new byte[160 * 144];
     
-    public Gpu(LcdControl lcdControl)
+    public Gpu(VRam vram, LcdControl lcdControl)
     {
+        _vram = vram;
         _lcdControl = lcdControl ?? throw new ArgumentNullException(nameof(lcdControl));
     }
 

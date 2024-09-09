@@ -15,7 +15,7 @@ public class LcdControl : RAM
 
     public void WriteByte(ushort address, byte value)
     {
-        throw new NotImplementedException();
+        Data[address - LowerBound] = value;
     }
 
     private bool IsBitSet(byte value, int bit) => (value & (1 << bit)) != 0;

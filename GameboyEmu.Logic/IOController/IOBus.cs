@@ -28,6 +28,13 @@ public class IOBus : IMemoryAddressable
 
     public void WriteByte(ushort address, byte value)
     {
+        if (address.IsBetween(0xFF40, 0xFF4B))
+        {
+            _lcdControl.WriteByte(address, value);
+            return;
+        }
+        
+        
         _data[address - _lowerBound] = value;
     }
 }

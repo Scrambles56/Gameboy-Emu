@@ -82,18 +82,8 @@ public class Cpu
     }
 
 
-    public byte ReadNextByte()
-    {
-        var value = _addressBus.ReadByte(PC);
-        PC++;
-        return value;
-    }
-    
-    public void WriteByte(ushort address, byte value)
-    {
-        _addressBus.WriteByte(address, value);
-    }
-
+    public byte ReadNextByte() => _addressBus.ReadByte(PC++);
+    public void WriteByte(ushort address, byte value) => _addressBus.WriteByte(address, value);
     public byte ReadByte(ushort address) => _addressBus.ReadByte(address);
 
     public void Step()
@@ -105,14 +95,12 @@ public class Cpu
         if (instruction is not null)
         {
             FetchedData = instruction.FetchData(this);
-            LogCurrentState(instruction, opCode, currentPc);
             instruction.Execute(this, FetchedData);
             
             _executedInstructions[instruction.Mnemonic] = _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
         }
         else
         {
-            LogCurrentState(instruction, opCode, currentPc);
         }
         
 
@@ -222,7 +210,6 @@ public class Cpu
     {
         return registerType switch
         {
-
             RegisterType.A => A,
             RegisterType.B => B,
             RegisterType.C => C,

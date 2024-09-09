@@ -16,7 +16,6 @@ public static class Instructions
             cpu.cbMode = false;
             return instruction;
         }
-        
     }
 
     private static Dictionary<byte, Instruction> cbInstructions { get; set; } = new List<Instruction>
@@ -28,28 +27,6 @@ public static class Instructions
     public static Dictionary<byte, Instruction> Instrs { get; set; } = new List<Instruction>
         {
             new NoopInstruction(),
-            new CompareInstruction(
-                0xFE,
-                "CP nn",
-                8,
-                InstructionSize.D8,
-                RegisterType.A
-            ),
-            new GenericInstruction(
-                0xAF,
-                "XOR A",
-                4,
-                register1: RegisterType.A,
-                action: (instr, cpu, _) =>
-                {
-                    var newA = cpu.ReadByteRegister(instr.Register1) ^ cpu.A;
-                    cpu.A.SetValue((byte)newA);
-                    
-                    cpu.F.ZeroFlag = true;
-                    cpu.F.SubtractFlag = false;
-                    cpu.F.HalfCarryFlag = false;
-                    cpu.F.CarryFlag = false;
-                }),
             new GenericInstruction(
                 0xEA,
                 "LD (a16),A",
@@ -66,10 +43,7 @@ public static class Instructions
                 0xF3,
                 "DI",
                 4,
-                action: (_, cpu, _) =>
-                {
-                    cpu.SetInterruptMasterFlag(false);
-                }
+                action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(false); }
             ),
             new GenericInstruction(
                 0xE0,
@@ -113,36 +87,112 @@ public static class Instructions
                 0xCB,
                 "PREFIX CB",
                 4,
+                action: (_, cpu, _) => { cpu.cbMode = true; }
+            ),
+            new RotateInstruction(
+                0x07,
+                "RLCA",
+                4,
+                RegisterType.A
+            ),
+            new RotateInstruction(
+                0x17,
+                "RLA",
+                4,
+                RegisterType.A,
+                Direction.Left,
+                true
+            ),
+            new RotateInstruction(
+                0x0F,
+                "RRCA",
+                4,
+                RegisterType.A,
+                Direction.Right
+            ),
+            new RotateInstruction(
+                0x1F,
+                "RRA",
+                4,
+                RegisterType.A,
+                Direction.Right,
+                true
+            ),
+            new GenericInstruction(0xC9,
+                "RET",
+                16,
                 action: (_, cpu, _) =>
                 {
-                    cpu.cbMode = true;
-                }
+                    var low = cpu.ReadByte(cpu.SP++);
+                    var high = cpu.ReadByte(cpu.SP++);
+                    cpu.PC.SetValue((ushort)((high << 8) | low));
+                }   
             )
         }
+        .Concat(AddInstructions.Instructions)
+        .Concat(SubtractInstructions.Instructions)
+        .Concat(AndInstructions.Instructions)
+        .Concat(OrInstructions.Instructions)
+        .Concat(XorInstructions.Instructions)
+        .Concat(CompareInstructions.Instructions)
         .Concat(JumpInstructions.Instructions)
         .Concat(LoadInstructions.Instructions)
         .Concat(DecrementInstructions.Instructions)
         .Concat(IncrementInstructions.Instructions)
         .ToDictionary(i => i.Opcode);
 
-
     public static void PrintInstructionTable(GameboyEmu.Cpu.Cpu cpu)
     {
+        byte[] excludedOpCodes =
+        {
+            0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD
+        };
         var cbMode = cpu.cbMode;
-        
-        Console.WriteLine("  0 1 2 3 4 5 6 7 8 9 A B C D E F");
+
+        Console.WriteLine("   x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF");
         for (var i = 0; i < 16; i++)
         {
-            Console.Write("{0:X}", i);
-            
+            Console.Write("{0:X}x", i);
+
+            for (var j = 0; j < 16; j++)
+            {
+                var opcode = (byte)(i * 16 + j);
+                if (excludedOpCodes.Contains(opcode))
+                {
+                    Console.Write("  -");
+                    continue;
+                }
+                
+                var instr = GetInstruction(opcode, cpu);
+                cpu.cbMode = cbMode;
+                Console.Write(instr == null ? "  x" : "  .");
+            }
+
+            Console.WriteLine();
+        }
+        
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine();
+        Console.WriteLine("---------------------------------------");
+        
+        Console.WriteLine("CB Instructions");
+
+        cbMode = true;
+        cpu.cbMode = cbMode;
+        Console.WriteLine("   x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF");
+        for (var i = 0; i < 16; i++)
+        {
+            Console.Write("{0:X}x", i);
+
             for (var j = 0; j < 16; j++)
             {
                 var opcode = (byte)(i * 16 + j);
                 var instr = GetInstruction(opcode, cpu);
                 cpu.cbMode = cbMode;
-                Console.Write(instr == null ? "  " : " .");
+                Console.Write(instr == null ? "  x" : "  .");
             }
-            
+
             Console.WriteLine();
         }
     }

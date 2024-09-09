@@ -6,16 +6,15 @@ namespace GameboyEmu.Logic.Gpu;
 
 public class VRam : RAM
 {
-    public VRam() 
-        : base(0x1FFF, 0x8000)
+    public VRam()
+        : base(8192, 0x8000)
     {
     }
 
-
     public override byte ReadByte(ushort address)
     {
-        Debug.Assert(!address.IsBetween(0x9000, 0x97FF));
-        
+        Debug.Assert(!address.IsBetween(0x8000, 0x97FF));
+
         return Data[address - LowerBound];
     }
 }
