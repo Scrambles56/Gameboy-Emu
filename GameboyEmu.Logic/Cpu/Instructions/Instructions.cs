@@ -28,46 +28,10 @@ public static class Instructions
         {
             new NoopInstruction(),
             new GenericInstruction(
-                0xEA,
-                "LD (a16),A",
-                16,
-                InstructionSize.D16,
-                RegisterType.A,
-                action: (instruction, cpu, data) =>
-                {
-                    var regValue = cpu.ReadByteRegister(instruction.Register1);
-                    cpu.WriteByte(data.ToUshort(), regValue);
-                }
-            ),
-            new GenericInstruction(
                 0xF3,
                 "DI",
                 4,
                 action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(false); }
-            ),
-            new GenericInstruction(
-                0xE0,
-                "LDH (a8),A",
-                12,
-                InstructionSize.D8,
-                RegisterType.A,
-                action: (instruction, cpu, data) =>
-                {
-                    var regValue = cpu.ReadByteRegister(instruction.Register1);
-                    cpu.WriteByte((ushort)(0xFF00 + data.ToByte()), regValue);
-                }
-            ),
-            new GenericInstruction(
-                0xF0,
-                "LDH A,(a8)",
-                12,
-                InstructionSize.D8,
-                RegisterType.A,
-                action: (instruction, cpu, data) =>
-                {
-                    var regValue = cpu.ReadByte((ushort)(0xFF00 + data.ToByte()));
-                    cpu.WriteByteRegister(instruction.Register1, regValue);
-                }
             ),
             new GenericInstruction(
                 0xCD,

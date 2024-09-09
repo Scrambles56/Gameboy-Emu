@@ -102,6 +102,75 @@ public static class LoadInstructions
         new LoadRegisterIntoAddress(0x75, "LD (HL),L", 8, InstructionSize.None, RegisterType.HL, RegisterType.L),
         new LoadRegisterIntoAddress(0x77, "LD (HL),A", 8, InstructionSize.None, RegisterType.HL, RegisterType.A),
         
+        new GenericInstruction(
+            0xE0,
+            "LDH (a8),A",
+            12,
+            InstructionSize.D8,
+            RegisterType.A,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByteRegister(instruction.Register1);
+                cpu.WriteByte((ushort)(0xFF00 + data.ToByte()), regValue);
+            }
+        ),
+        new GenericInstruction(
+            0xEA,
+            "LD (a16),A",
+            16,
+            InstructionSize.D16,
+            RegisterType.A,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByteRegister(instruction.Register1);
+                cpu.WriteByte(data.ToUshort(), regValue);
+            }
+        ),
+        new GenericInstruction(
+            0xF0,
+            "LDH A,(a8)",
+            12,
+            InstructionSize.D8,
+            RegisterType.A,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByte((ushort)(0xFF00 + data.ToByte()));
+                cpu.WriteByteRegister(instruction.Register1, regValue);
+            }
+        ),
+        new GenericInstruction(
+            0xFA,
+            "LD A,(a16)",
+            16,
+            InstructionSize.D16,
+            RegisterType.A,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByte(data.ToUshort());
+                cpu.WriteByteRegister(instruction.Register1, regValue);
+            }
+        ),
+        
+        new GenericInstruction(
+            0xE2,
+            "LD (C),A",
+            8,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByteRegister(RegisterType.A);
+                cpu.WriteByte((ushort)(0xFF00 + cpu.ReadByteRegister(RegisterType.C)), regValue);
+            }
+        ),
+        new GenericInstruction(
+            0xF2,
+            "LD A,(C)",
+            8,
+            action: (instruction, cpu, data) =>
+            {
+                var regValue = cpu.ReadByte((ushort)(0xFF00 + cpu.ReadByteRegister(RegisterType.C)));
+                cpu.WriteByteRegister(RegisterType.A, regValue);
+            }
+        ),
         
         new GenericInstruction(
             0x32,
