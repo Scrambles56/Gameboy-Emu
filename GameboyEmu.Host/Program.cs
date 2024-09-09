@@ -34,8 +34,13 @@ var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, 
 var cpu = new Cpu(addressBus);
 
 var instructionsExecutedCount = 0;
-Instructions.PrintInstructionTable(cpu);
-return 1;
+
+var shouldPrintTable = configuration.GetValue<bool>("printTable");
+if (shouldPrintTable)
+{
+    Instructions.PrintInstructionTable(cpu);
+    return 1;
+}
 
 var cpuTask = Task.Run(() =>
 {

@@ -41,9 +41,3 @@ public class RotateInstruction : Instruction
         cpu.F.CarryFlag = overflowBit == 1;
     }
 }
-
-public enum Direction
-{
-    Left,
-    Right
-} 

@@ -22,6 +22,7 @@ public static class Instructions
         {
         }
         .Concat(ResetInstructions.Instructions)
+        .Concat(ShiftRightLogicallyInstructions.Instructions)
         .ToDictionary(i => i.Opcode);
 
     public static Dictionary<byte, Instruction> Instrs { get; set; } = new List<Instruction>
@@ -32,6 +33,12 @@ public static class Instructions
                 "DI",
                 4,
                 action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(false); }
+            ),
+            new GenericInstruction(
+                0xFB,
+                "EI",
+                4,
+                action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(true); }
             ),
             new GenericInstruction(
                 0xCD,

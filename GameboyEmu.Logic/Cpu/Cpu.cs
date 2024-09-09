@@ -96,6 +96,8 @@ public class Cpu
         {
             FetchedData = instruction.FetchData(this);
             instruction.Execute(this, FetchedData);
+
+            LogGbDocState();
             
             _executedInstructions[instruction.Mnemonic] = _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
         }
@@ -106,6 +108,41 @@ public class Cpu
 
         LastInstruction = instruction;
         FetchedData = null;
+    }
+
+    /// <summary>
+    /// Format of logging is important for this tool:
+    /// https://github.com/robert/gameboy-doctor
+    /// </summary>
+    private void LogGbDocState()
+    {
+        var a = A.GetValue();
+        var b = B.GetValue();
+        var c = C.GetValue();
+        var d = D.GetValue();
+        var e = E.GetValue();
+        var f = F.GetValue();
+        var h = H.GetValue();
+        var l = L.GetValue();
+        var sp = SP.GetValue();
+        var pc = PC.GetValue();
+        
+        var logString = new StringBuilder()
+            .Append($"A:{a:X2} ")
+            .Append($"F:{f:X2} ")
+            .Append($"B:{b:X2} ")
+            .Append($"C:{c:X2} ")
+            .Append($"D:{d:X2} ")
+            .Append($"E:{e:X2} ")
+            .Append($"H:{h:X2} ")
+            .Append($"L:{l:X2} ")
+            .Append($"SP:{sp:X4} ")
+            .Append($"PC:{pc:X4} ")
+            .Append($"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2}")
+            .ToString();
+        
+        Console.WriteLine(logString);
+        
     }
     
     private void LogCurrentState(Instruction? inst, byte opcode, ushort pc)
