@@ -32,6 +32,7 @@ var lcdControl = new LcdControl();
 var ioBus = new IOBus(lcdControl);
 var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram);
 var cpu = new Cpu(addressBus);
+cpu.LogGbDocState();
 
 var instructionsExecutedCount = 0;
 
@@ -42,13 +43,14 @@ if (shouldPrintTable)
     return 1;
 }
 
-var cpuTask = Task.Run(() =>
+
+var cpuTask = Task.Run(async () =>
 {
     while (true)
     {
         try
         {
-            cpu.Step();
+            await cpu.Step();
 
             if (cpu.LastInstruction == null)
             {
@@ -64,25 +66,25 @@ var cpuTask = Task.Run(() =>
     }
 });
 
-var gpuTask = Task.Run(() =>
-{
-    while (true)
-    {
-        try
-        {
-            gpu.Tick();
-        }
-        catch
-        {
-            throw;
-        }
-    }
-});
+// var gpuTask = Task.Run(() =>
+// {
+//     while (true)
+//     {
+//         try
+//         {
+//             gpu.Tick();
+//         }
+//         catch
+//         {
+//             throw;
+//         }
+//     }
+// });
 
 var res = await Task.WhenAny(new List<Task>
 {
     cpuTask,
-    gpuTask
+    // gpuTask
 });
 
 Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");

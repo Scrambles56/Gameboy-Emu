@@ -82,11 +82,19 @@ public class Cpu
     }
 
 
-    public byte ReadNextByte() => _addressBus.ReadByte(PC++);
+    public byte ReadNextByte()
+    {
+        var b = _addressBus.ReadByte(PC);
+        PC++;
+        return b;
+    }
+
     public void WriteByte(ushort address, byte value) => _addressBus.WriteByte(address, value);
     public byte ReadByte(ushort address) => _addressBus.ReadByte(address);
 
-    public void Step()
+    public const decimal ClockSpeed = 1000 / 4194304.0m;
+
+    public async Task Step()
     {
         ushort currentPc = PC;
         var opCode = ReadNextByte();
@@ -114,7 +122,7 @@ public class Cpu
     /// Format of logging is important for this tool:
     /// https://github.com/robert/gameboy-doctor
     /// </summary>
-    private void LogGbDocState()
+    public void LogGbDocState()
     {
         var a = A.GetValue();
         var b = B.GetValue();

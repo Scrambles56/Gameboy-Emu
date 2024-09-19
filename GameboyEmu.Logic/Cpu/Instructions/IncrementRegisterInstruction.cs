@@ -57,12 +57,13 @@ public class IncrementRegisterInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var regValue = cpu.ReadByteRegister(Register1);
-        cpu.WriteByteRegister(Register1, --regValue);
+        var originalValue = cpu.ReadByteRegister(Register1);
+        var regValue = (byte)(originalValue + 1);
+        cpu.WriteByteRegister(Register1, regValue);
         
         cpu.F.ZeroFlag = regValue == 0;
         cpu.F.SubtractFlag = false;
-        cpu.F.HalfCarryFlag = (regValue & 0x0F) == 0x0F;
+        cpu.F.HalfCarryFlag = (((originalValue & 0x0F) + (1 & 0x0F)) & 0x10) == 0x10;
     }
 }
 

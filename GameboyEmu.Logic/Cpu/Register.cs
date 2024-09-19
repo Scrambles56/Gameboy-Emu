@@ -65,17 +65,17 @@ public class RegisterFlags : Register8
     {
     }
 
-    private bool IsBitSet(int bitNumber) => (Value & (1 << bitNumber - 1)) != 0;
+    private bool IsBitSet(int bitNumber) => (Value & (1 << bitNumber)) != 0;
     
     private void SetBit(int bitNumber, bool value)
     {
         if (value)
         {
-            Value |= (byte)(1 << bitNumber - 1);
+            Value |= (byte)(1 << bitNumber);
         }
         else
         {
-            Value &= (byte)~(1 << bitNumber - 1);
+            Value &= (byte)~(1 << bitNumber);
         }
     }
     
