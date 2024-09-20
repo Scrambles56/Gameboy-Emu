@@ -41,20 +41,6 @@ public static class Instructions
                 action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(true); }
             ),
             new GenericInstruction(
-                0xCD,
-                "CALL a16",
-                24,
-                InstructionSize.D16,
-                action: (_, cpu, data) =>
-                {
-                    var value = data.ToUshort();
-                    cpu.SP--;
-                    cpu.WriteByte(cpu.SP--, (byte)(cpu.PC >> 8));
-                    cpu.WriteByte(cpu.SP, (byte)(cpu.PC & 0xFF));
-                    cpu.PC.SetValue(value);
-                }
-            ),
-            new GenericInstruction(
                 0xCB,
                 "PREFIX CB",
                 4,
@@ -94,8 +80,10 @@ public static class Instructions
                 16,
                 action: (_, cpu, _) =>
                 {
-                    var low = cpu.ReadByte(cpu.SP++);
-                    var high = cpu.ReadByte(cpu.SP++);
+                    var low = cpu.ReadByte(cpu.SP);
+                    cpu.SP++;
+                    var high = cpu.ReadByte(cpu.SP);
+                    cpu.SP++;
                     cpu.PC.SetValue((ushort)((high << 8) | low));
                 }   
             )
@@ -110,6 +98,9 @@ public static class Instructions
         .Concat(LoadInstructions.Instructions)
         .Concat(DecrementInstructions.Instructions)
         .Concat(IncrementInstructions.Instructions)
+        .Concat(PushInstructions.Instructions)
+        .Concat(PopInstructions.Instructions)
+        .Concat(CallInstructions.Instructions)
         .ToDictionary(i => i.Opcode);
 
     public static void PrintInstructionTable(GameboyEmu.Cpu.Cpu cpu)

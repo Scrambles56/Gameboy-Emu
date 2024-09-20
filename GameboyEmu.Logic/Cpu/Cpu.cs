@@ -6,6 +6,8 @@ using static GameboyEmu.Logic.Cpu.Instructions.Instructions;
 
 namespace GameboyEmu.Cpu;
 
+using System.Diagnostics;
+
 public class Cpu
 {
     public Register8 A { get; set; } = new(0x01);
@@ -111,6 +113,7 @@ public class Cpu
         }
         else
         {
+            Debugger.Break();
         }
         
 
@@ -135,6 +138,9 @@ public class Cpu
         var sp = SP.GetValue();
         var pc = PC.GetValue();
         
+        
+       
+        
         var logString = new StringBuilder()
             .Append($"A:{a:X2} ")
             .Append($"F:{f:X2} ")
@@ -146,7 +152,7 @@ public class Cpu
             .Append($"L:{l:X2} ")
             .Append($"SP:{sp:X4} ")
             .Append($"PC:{pc:X4} ")
-            .Append($"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2}")
+            .Append($"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
             .ToString();
         
         Console.WriteLine(logString);

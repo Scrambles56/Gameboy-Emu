@@ -27,8 +27,6 @@ public class RAM : IMemoryAddressable
 
     public virtual byte ReadByte(ushort address)
     {
-        Debug.Assert(Written[address - LowerBound]);
-        
         return Data[address - LowerBound];
     }
     

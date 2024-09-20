@@ -87,6 +87,6 @@ var res = await Task.WhenAny(new List<Task>
     // gpuTask
 });
 
-Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");
+// Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");
 
 return 1;
