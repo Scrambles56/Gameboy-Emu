@@ -41,7 +41,7 @@ public class InstructionTests
 
     public InstructionTests()
     {
-        var cartridgePath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "../../../..", "roms", "cpu_instrs", "cpu_instrs.gb"));
+        var cartridgePath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "../../../..", "roms", "gb-test-roms-master", "cpu_instrs", "cpu_instrs.gb"));
         var cartridge = new Cartridge.Cartridge(cartridgePath).Load().GetAwaiter().GetResult();
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);

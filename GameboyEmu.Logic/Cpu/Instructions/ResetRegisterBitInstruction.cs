@@ -2,7 +2,7 @@ namespace GameboyEmu.Logic.Cpu.Instructions;
 
 public static class ResetInstructions
 {
-    public static List<Instruction> Instructions = new()
+    public static List<Instruction> CbInstructions = new()
     {
         new ResetRegisterBitInstruction(0x80, "RES 0,B", 8, 0, RegisterType.B),
         new ResetRegisterBitInstruction(0x81, "RES 0,C", 8, 0, RegisterType.C),

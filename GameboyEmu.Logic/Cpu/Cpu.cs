@@ -94,11 +94,11 @@ public class Cpu
     public void WriteByte(ushort address, byte value) => _addressBus.WriteByte(address, value);
     public byte ReadByte(ushort address) => _addressBus.ReadByte(address);
 
-    public const decimal ClockSpeed = 1000 / 4194304.0m;
+    public const decimal ClockSpeed = 4194304.0m;
 
     public async Task Step()
     {
-        ushort currentPc = PC;
+        var isCbMode = cbMode;
         var opCode = ReadNextByte();
         var instruction = GetInstruction(opCode, this);
 
@@ -107,12 +107,16 @@ public class Cpu
             FetchedData = instruction.FetchData(this);
             instruction.Execute(this, FetchedData);
 
-            LogGbDocState();
-            
+            if (instruction.Opcode != 0xCB)
+            {
+                LogGbDocState();
+            }
+
             _executedInstructions[instruction.Mnemonic] = _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
         }
         else
         {
+            Console.WriteLine($"Unknown instruction: {(isCbMode ? "CB" : "")}" + opCode.ToString("X2"));
             Debugger.Break();
         }
         
@@ -137,10 +141,29 @@ public class Cpu
         var l = L.GetValue();
         var sp = SP.GetValue();
         var pc = PC.GetValue();
+
+
+        var spInboundMemory = new byte?[]
+        {
+            ReadInboundsByte(sp),
+            ReadInboundsByte((ushort)(sp + 1)),
+            ReadInboundsByte((ushort)(sp + 2)),
+            ReadInboundsByte((ushort)(sp + 3))
+        };
+
+        byte? ReadInboundsByte(ushort address)
+        {
+            try
+            {
+                return address < 0xFFFE ? ReadByte(address) : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
         
-        
-       
-        
+
         var logString = new StringBuilder()
             .Append($"A:{a:X2} ")
             .Append($"F:{f:X2} ")
@@ -153,6 +176,7 @@ public class Cpu
             .Append($"SP:{sp:X4} ")
             .Append($"PC:{pc:X4} ")
             .Append($"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
+            // .Append($"SPMEM:{spInboundMemory[0]:X2},{spInboundMemory[1]:X2},{spInboundMemory[2]:X2},{spInboundMemory[3]:X2} ")
             .ToString();
         
         Console.WriteLine(logString);

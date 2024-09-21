@@ -27,7 +27,8 @@ public class RAM : IMemoryAddressable
 
     public virtual byte ReadByte(ushort address)
     {
-        return Data[address - LowerBound];
+        var indexAddress = address - LowerBound;
+        return Data[indexAddress];
     }
     
     public void WriteByte(ushort address, byte value)

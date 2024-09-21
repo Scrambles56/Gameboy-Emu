@@ -84,6 +84,10 @@ public static class LoadInstructions
             }
         ),
         
+        new LoadAddressToRegister(0x0A, "LD A,(BC)", 8, InstructionSize.None, RegisterType.A, RegisterType.BC),
+        new LoadAddressToRegister(0x1A, "LD A,(DE)", 8, InstructionSize.None, RegisterType.A, RegisterType.DE),
+        // new LoadAddressToRegister(0x2A, "LD A,(HL+)", 8, InstructionSize.None, RegisterType.A, RegisterType.HL, IncDecOperation.Increment),
+        // new LoadAddressToRegister(0x3A, "LD A,(HL-)", 8, InstructionSize.None, RegisterType.A, RegisterType.HL, IncDecOperation.Decrement),
         new LoadAddressToRegister(0x46, "LD B,(HL)", 8, InstructionSize.None, RegisterType.B, RegisterType.HL),
         new LoadAddressToRegister(0x4E, "LD C,(HL)", 8, InstructionSize.None, RegisterType.C, RegisterType.HL),
         new LoadAddressToRegister(0x56, "LD D,(HL)", 8, InstructionSize.None, RegisterType.D, RegisterType.HL),
@@ -101,6 +105,8 @@ public static class LoadInstructions
         new LoadRegisterIntoAddress(0x74, "LD (HL),H", 8, InstructionSize.None, RegisterType.HL, RegisterType.H),
         new LoadRegisterIntoAddress(0x75, "LD (HL),L", 8, InstructionSize.None, RegisterType.HL, RegisterType.L),
         new LoadRegisterIntoAddress(0x77, "LD (HL),A", 8, InstructionSize.None, RegisterType.HL, RegisterType.A),
+        
+        
         
         new GenericInstruction(
             0xE0,

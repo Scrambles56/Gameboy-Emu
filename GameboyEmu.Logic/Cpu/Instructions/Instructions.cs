@@ -12,17 +12,18 @@ public static class Instructions
         }
         else
         {
-            var instruction = cbInstructions.TryGetValue(opcode, out var instr) ? instr : null;
+            var instruction = CbInstructions.TryGetValue(opcode, out var instr) ? instr : null;
             cpu.cbMode = false;
             return instruction;
         }
     }
 
-    private static Dictionary<byte, Instruction> cbInstructions { get; set; } = new List<Instruction>
+    private static Dictionary<byte, Instruction> CbInstructions { get; set; } = new List<Instruction>
         {
         }
-        .Concat(ResetInstructions.Instructions)
-        .Concat(ShiftRightLogicallyInstructions.Instructions)
+        .Concat(ResetInstructions.CbInstructions)
+        .Concat(ShiftRightLogicallyInstructions.CbInstructions)
+        .Concat(RotateInstructions.CbInstructions)
         .ToDictionary(i => i.Opcode);
 
     public static Dictionary<byte, Instruction> Instrs { get; set; } = new List<Instruction>
@@ -44,50 +45,14 @@ public static class Instructions
                 0xCB,
                 "PREFIX CB",
                 4,
-                action: (_, cpu, _) => { cpu.cbMode = true; }
-            ),
-            new RotateInstruction(
-                0x07,
-                "RLCA",
-                4,
-                RegisterType.A
-            ),
-            new RotateInstruction(
-                0x17,
-                "RLA",
-                4,
-                RegisterType.A,
-                Direction.Left,
-                true
-            ),
-            new RotateInstruction(
-                0x0F,
-                "RRCA",
-                4,
-                RegisterType.A,
-                Direction.Right
-            ),
-            new RotateInstruction(
-                0x1F,
-                "RRA",
-                4,
-                RegisterType.A,
-                Direction.Right,
-                true
-            ),
-            new GenericInstruction(0xC9,
-                "RET",
-                16,
                 action: (_, cpu, _) =>
                 {
-                    var low = cpu.ReadByte(cpu.SP);
-                    cpu.SP++;
-                    var high = cpu.ReadByte(cpu.SP);
-                    cpu.SP++;
-                    cpu.PC.SetValue((ushort)((high << 8) | low));
-                }   
+                    cpu.cbMode = true;
+                }
             )
         }
+        .Concat(ReturnInstructions.Instructions)
+        .Concat(RotateInstructions.Instructions)
         .Concat(AddInstructions.Instructions)
         .Concat(SubtractInstructions.Instructions)
         .Concat(AndInstructions.Instructions)

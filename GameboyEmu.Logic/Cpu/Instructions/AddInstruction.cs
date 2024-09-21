@@ -160,7 +160,31 @@ public static class AddInstructions
             RegisterType.A,
             RegisterType.None,
             withCarry: true
-        )
+        ),
+        new AddRegisterToHlInstruction(
+            0x09,
+            "ADD HL,BC",
+            8,
+            RegisterType.BC
+        ),
+        new AddRegisterToHlInstruction(
+            0x19,
+            "ADD HL,DE",
+            8,
+            RegisterType.DE
+        ),
+        new AddRegisterToHlInstruction(
+            0x29,
+            "ADD HL,HL",
+            8,
+            RegisterType.HL
+        ),
+        new AddRegisterToHlInstruction(
+            0x39,
+            "ADD HL,SP",
+            8,
+            RegisterType.SP
+        ),
     };
 }
 
@@ -219,5 +243,30 @@ public class AddInstruction : Instruction
         {
             cpu.WriteByteRegister(Register2, (byte)result);
         }
+    }
+}
+
+public class AddRegisterToHlInstruction : Instruction
+{
+    public AddRegisterToHlInstruction(
+        byte opcode, 
+        string mnemonic, 
+        int cycles, 
+        RegisterType register1) 
+    : base(opcode, mnemonic, cycles, InstructionSize.None, register1, RegisterType.HL)
+    {
+    }
+
+    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    {
+        var value1 = cpu.ReadUshortRegister(Register1);
+        var value2 = cpu.ReadUshortRegister(Register2);
+        var result = value1 + value2;
+
+        cpu.WriteUshortRegister(Register1, (ushort)result);
+
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = (value1 & 0x0FFF) + (value2 & 0x0FFF) > 0x0FFF;
+        cpu.F.CarryFlag = result > 0xFFFF;
     }
 }

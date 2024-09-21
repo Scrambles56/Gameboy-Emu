@@ -1,3 +1,5 @@
+using GameboyEmu.Logic.Cpu.Extensions;
+
 namespace GameboyEmu.Logic.Cpu.Instructions;
 
 using GameboyEmu.Cpu;
@@ -49,28 +51,21 @@ public class CallInstruction : Instruction
         string mnemonic, 
         int cycles, 
         Condition condition) 
-    : base(opcode, mnemonic, cycles)
+    : base(opcode, mnemonic, cycles, InstructionSize.D16)
     {
         _condition = condition;
     }
 
     public override void Execute(Cpu cpu, FetchedData data)
     {
-        var lsb = cpu.ReadByte(cpu.PC);
-        cpu.PC++;
-        var msb = cpu.ReadByte(cpu.PC);
-        cpu.PC++;
-        var value = (ushort)((msb << 8) | lsb);
-        
         if (cpu.CheckCondition(_condition))
         {
+            var value = cpu.PC.GetValue().ToBytes();
             cpu.SP--;
-            cpu.WriteByte(cpu.SP, msb);
+            cpu.WriteByte(cpu.SP, value.high);
             cpu.SP--;
-            cpu.WriteByte(cpu.SP, lsb);
-            cpu.PC = value;
+            cpu.WriteByte(cpu.SP, value.low);
+            cpu.PC = data.ToUshort();
         }
-        
-        
     }
 }

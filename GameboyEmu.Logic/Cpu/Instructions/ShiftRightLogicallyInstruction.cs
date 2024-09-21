@@ -2,7 +2,7 @@
 
 public static class ShiftRightLogicallyInstructions
 {
-    public static List<Instruction> Instructions = new()
+    public static List<Instruction> CbInstructions = new()
     {
         new ShiftRightLogicallyInstruction(
             0x38,

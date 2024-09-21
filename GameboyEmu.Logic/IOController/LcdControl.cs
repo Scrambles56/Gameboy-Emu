@@ -10,6 +10,12 @@ public class LcdControl : RAM
     
     public byte ReadByte(ushort address)
     {
+        // Gameboy Doctor
+        if (address == 0xFF44)
+        {
+            return 0x90;
+        }
+        
         return Data[address - LowerBound];
     }
 
