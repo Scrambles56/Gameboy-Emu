@@ -40,6 +40,29 @@ public static class GameboyWindow
     
     private static string GetTitle(Cpu.Cpu cpu) => "Gameboy Emulator";
 
+    private static void DrawTestTile(Vector2 position)
+    {
+        var tile = Tile.TestTile;
+        var tileWidth = 8;
+        var tileHeight = 8;
+        
+        var pixelBuffer = new byte[tileWidth * tileHeight];
+        for (var i = 0; i < pixelBuffer.Length; i++)
+        {
+            var x = i % tileWidth;
+            var y = i / tileWidth;
+            
+            var pixel = tile.GetPixel(x, y);
+            pixelBuffer[i] = pixel;
+        }
+        
+        var texture = MakeTextureForBuffer(pixelBuffer, tileWidth, tileHeight);
+        
+        var srcRec = new Rectangle(0, 0, texture.Width, texture.Height);
+        var dstRec = new Rectangle(0, 0, tileWidth * Scaling, tileHeight * Scaling);
+        Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
+    }
+    
     private static void DrawScreen(Gpu gpu, Vector2 position)
     {
         var texture = MakeTextureForBuffer(gpu.FrameBuffer, ScreenWidth, ScreenHeight);

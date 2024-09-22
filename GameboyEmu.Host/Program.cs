@@ -7,6 +7,7 @@ using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
 using GameboyEmu.Windowing;
 using Microsoft.Extensions.Configuration;
+using Nito.AsyncEx;
 
 
 var configuration = new ConfigurationBuilder()
@@ -20,7 +21,7 @@ if (rom == null)
     return 2;
 }
 
-var cartridge = await new Cartridge(rom).Load();
+var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
 var vram = new VRam();
 var lcdControl = new LcdControl();
 
