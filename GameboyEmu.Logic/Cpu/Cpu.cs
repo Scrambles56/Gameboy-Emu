@@ -18,14 +18,14 @@ public class Cpu
     public RegisterFlags F { get; set; } = new(0xB0);
     public Register8 H { get; set; } = new(0x01);
     public Register8 L { get; set; } = new(0x4D);
-    
+
     public Register16 AF
     {
         get => new((ushort)((A << 8) | F));
         set
         {
             var (high, low) = value.GetValue().ToBytes();
-            
+
             A.SetValue(high);
             F.SetValue(low);
         }
@@ -37,7 +37,7 @@ public class Cpu
         set
         {
             var (high, low) = value.GetValue().ToBytes();
-            
+
             B.SetValue(high);
             C.SetValue(low);
         }
@@ -49,7 +49,7 @@ public class Cpu
         set
         {
             var (high, low) = value.GetValue().ToBytes();
-            
+
             D.SetValue(high);
             E.SetValue(low);
         }
@@ -61,16 +61,15 @@ public class Cpu
         set
         {
             var (high, low) = value.GetValue().ToBytes();
-            
+
             H.SetValue(high);
             L.SetValue(low);
         }
-
     }
 
     public Register16 SP { get; set; } = new(0xFFFE);
     public Register16 PC { get; set; } = new(0x100);
-    
+
     private AddressBus _addressBus;
 
     private FetchedData? FetchedData { get; set; }
@@ -96,8 +95,14 @@ public class Cpu
 
     public const decimal ClockSpeed = 4194304.0m;
 
+    public double AvgOpTimeMs { get; private set; } = 0;
+    public int AvgCount { get; private set; } = 0;
+
+
     public async Task Step()
     {
+        using var _ = new Stopwatcher(StepTimerCallback);
+
         var isCbMode = cbMode;
         var opCode = ReadNextByte();
         var instruction = GetInstruction(opCode, this);
@@ -112,18 +117,27 @@ public class Cpu
                 LogGbDocState();
             }
 
-            _executedInstructions[instruction.Mnemonic] = _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
+            _executedInstructions[instruction.Mnemonic] =
+                _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
         }
         else
         {
             Console.WriteLine($"Unknown instruction: {(isCbMode ? "CB" : "")}" + opCode.ToString("X2"));
             Debugger.Break();
         }
-        
+
 
         LastInstruction = instruction;
         FetchedData = null;
     }
+
+    private void StepTimerCallback(TimeSpan ts)
+    {
+        AvgOpTimeMs = (AvgOpTimeMs * AvgCount + ts.TotalMilliseconds) / ++AvgCount;
+    }
+
+
+    private StringBuilder _logBuilder = new();
 
     /// <summary>
     /// Format of logging is important for this tool:
@@ -162,7 +176,7 @@ public class Cpu
                 return null;
             }
         }
-        
+
 
         var logString = new StringBuilder()
             .Append($"A:{a:X2} ")
@@ -175,54 +189,13 @@ public class Cpu
             .Append($"L:{l:X2} ")
             .Append($"SP:{sp:X4} ")
             .Append($"PC:{pc:X4} ")
-            .Append($"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
+            .Append(
+                $"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
             // .Append($"SPMEM:{spInboundMemory[0]:X2},{spInboundMemory[1]:X2},{spInboundMemory[2]:X2},{spInboundMemory[3]:X2} ")
             .ToString();
-        
+
         Console.WriteLine(logString);
-        
     }
-    
-    private void LogCurrentState(Instruction? inst, byte opcode, ushort pc)
-    {
-        var mnemonic = inst?.Mnemonic ?? "UNKN";
-        
-        var a = A.GetValue();
-        var b = B.GetValue();
-        var c = C.GetValue();
-        var d = D.GetValue();
-        var e = E.GetValue();
-        var f = F.GetValue();
-        var h = H.GetValue();
-        var l = L.GetValue();
-        var sp = SP.GetValue();
-        var interrupts = _addressBus.EnabledInterrupts;
-        
-        var logString = new StringBuilder()
-            .Append($"{pc.ToString("X4")}: ")
-            .Append($"({opcode.ToString("X2")}) {mnemonic,-20} ")
-            .Append($"{FetchedData,-20} ")
-            .Append($"{inst?.InstructionSize.ToString(),-10} ")
-            .Append($"A: {a:X2} ")
-            .Append($"B: {b:X2} ")
-            .Append($"C: {c:X2} ")
-            .Append($"D: {d:X2} ")
-            .Append($"E: {e:X2} ")
-            .Append($"H: {h:X2} ")
-            .Append($"L: {l:X2} ")
-            .Append($"SP: {sp:X4} \t")
-            .Append("Flags: ")
-            .Append($"Carry: {(F.CarryFlag?1:0)}, ")
-            .Append($"Zero: {(F.ZeroFlag?1:0)}, ")
-            .Append($"HalfCarry: {(F.HalfCarryFlag?1:0)}, ")
-            .Append($"Subtract: {(F.SubtractFlag?1:0)} \t")
-            .Append("Interrupts: ")
-            .Append($"IME: {(_addressBus.InterruptMasterEnabledFlag?1:0)}")
-            .ToString();
-            
-            
-            Console.WriteLine(logString);
-        }
 
     public void WriteByteRegister(RegisterType registerType, byte value)
     {
@@ -253,7 +226,7 @@ public class Cpu
                 throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null);
         }
     }
-    
+
     public void WriteUshortRegister(RegisterType registerType, ushort value)
     {
         switch (registerType)
@@ -295,7 +268,7 @@ public class Cpu
             _ => throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null)
         };
     }
-    
+
     public ushort ReadUshortRegister(RegisterType registerType)
     {
         return registerType switch
@@ -341,13 +314,13 @@ L: {{L}}
             _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
         };
     }
-    
-    
+
+
     public Instruction? LastInstruction { get; set; } = null;
-    
+
     private Dictionary<string, int> MissingInstructions { get; set; } = new();
 
-    public void SetInterruptMasterFlag(bool state)  
+    public void SetInterruptMasterFlag(bool state)
     {
         _addressBus.InterruptMasterEnabledFlag = state;
     }

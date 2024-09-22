@@ -6,5 +6,6 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ba2365f3_002Db524_002D4299_002Db82f_002Da41ed91655c0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="InstructExistsForOpcode" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::CC82804C-1981-4F28-81C0-100408ED4341::net8.0::GameboyEmu.Logic.Tests.InstructionTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::CC82804C-1981-4F28-81C0-100408ED4341::net8.0::GameboyEmu.Logic.Tests.TileTests.TestTileData&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>GameboyEmu</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,8 +17,7 @@
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
       <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
-      <PackageReference Include="Silk.NET" Version="2.21.0" />
-      <PackageReference Include="SkiaSharp" Version="2.88.8" />
+      <PackageReference Include="Raylib-cs" Version="6.1.1" />
     </ItemGroup>
 
 </Project>

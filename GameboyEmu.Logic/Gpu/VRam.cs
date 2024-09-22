@@ -13,7 +13,7 @@ public class VRam : RAM
 
     public override byte ReadByte(ushort address)
     {
-        Debug.Assert(!address.IsBetween(0x8000, 0x97FF));
+        // Debug.Assert(!address.IsBetween(0x8000, 0x9FFF));
 
         return Data[address - LowerBound];
     }

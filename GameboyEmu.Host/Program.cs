@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using GameboyEmu.Cpu;
+﻿using GameboyEmu.Cpu;
 using GameboyEmu.Logic.Cartridge;
 using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Instructions;
 using GameboyEmu.Logic.Gpu;
 using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
+using GameboyEmu.Windowing;
 using Microsoft.Extensions.Configuration;
 
 
@@ -22,14 +22,14 @@ if (rom == null)
 
 var cartridge = await new Cartridge(rom).Load();
 var vram = new VRam();
+var lcdControl = new LcdControl();
 
-var gpu = new Gpu(vram, new LcdControl());
+var gpu = new Gpu(vram, lcdControl);
 
 
 var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
 var highRam = new HighRam();
-var lcdControl = new LcdControl();
 var ioBus = new IOBus(lcdControl);
 var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram);
 var cpu = new Cpu(addressBus);
@@ -45,31 +45,16 @@ if (shouldPrintTable)
 
 var cpuTask = Task.Run(async () =>
 {
-    var avgTime = 0.0;
-    var avgCount = 0;
-    
     while (true)
     {
         try
         {
-            using (new Stopwatcher(ts => 
-            {
-                avgTime = (avgTime * avgCount + ts.TotalMilliseconds) / ++avgCount;
-            }))
-            {
-                await cpu.Step();
-            }
+            await cpu.Step();
 
             if (cpu.LastInstruction == null)
             {
                 break;
             }
-
-            // if (instructionsExecutedCount % 2000 == 0)
-            // {
-            //     Console.WriteLine($"Instructions executed: {instructionsExecutedCount}");
-            //     Console.WriteLine($"Average time per instruction: {avgTime}ms");
-            // }
         }
         catch
         {
@@ -98,32 +83,14 @@ var gpuTask = Task.Run(() =>
     }
 });
 
+GameboyWindow.Open(cpu, gpu);
+
 var res = await Task.WhenAny(new List<Task>
 {
     cpuTask,
     gpuTask
 });
 
-// Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");
+Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");
 
 return 1;
-
-
-public class Stopwatcher : IDisposable
-{
-    private Stopwatch _sw;
-    private Action<TimeSpan> _callback;
-
-    public Stopwatcher(Action<TimeSpan> callback)
-    {
-        _callback = callback;
-        _sw = Stopwatch.StartNew();
-    }
-    
-    
-    public void Dispose()
-    {
-        _sw.Stop();
-        _callback(_sw.Elapsed);
-    }
-}
