@@ -238,11 +238,6 @@ public class AddInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = (value1 & 0x0F) + (value2 & 0x0F) > 0x0F;
         cpu.F.CarryFlag = result > 0xFF;
-
-        if (_loadSecondRegister)
-        {
-            cpu.WriteByteRegister(Register2, (byte)result);
-        }
     }
 }
 

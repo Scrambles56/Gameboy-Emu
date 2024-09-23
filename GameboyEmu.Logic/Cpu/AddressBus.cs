@@ -30,7 +30,6 @@ public class AddressBus
     
     public byte ReadByte(ushort address)
     {
-        // Debug.Assert(!address.IsBetween(0xE000, 0xFDFF), "Reading from ECHO Ram");
         Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Reading from Unusable Memory");
         
         if (address.IsBetween(0x0000, 0x00FF))
@@ -62,6 +61,11 @@ public class AddressBus
         {
             return _upperWorkRam.ReadByte(address);
         }
+
+        if (address.IsBetween(0xE000, 0xFDFF))
+        {
+            return ReadByte((ushort)(address - 0x2000));
+        }
         
         if (address.IsBetween(0xFE00, 0xFE9F))
         {
@@ -89,7 +93,6 @@ public class AddressBus
     
     public void WriteByte(ushort address, byte value)
     {
-        Debug.Assert(!address.IsBetween(0xE000, 0xFDFF), "Writing to ECHO Ram");
         Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Writing to Unusable Memory");
         
         if (address.IsBetween(0x0000, 0x7FFF))
@@ -118,6 +121,12 @@ public class AddressBus
         if (address.IsBetween(0xD000, 0xDFFF))
         {
             _upperWorkRam.WriteByte(address, value);
+            return;
+        }
+        
+        if (address.IsBetween(0xE000, 0xFDFF))
+        {
+            WriteByte((ushort)(address - 0x2000), value);
             return;
         }
 

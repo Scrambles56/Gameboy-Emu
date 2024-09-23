@@ -10,14 +10,27 @@ using System.Diagnostics;
 
 public class Cpu
 {
-    public Register8 A { get; set; } = new(0x01);
+    // public Register8 A { get; set; } = new(0x01);
+    // public Register8 B { get; set; } = new(0x00);
+    // public Register8 C { get; set; } = new(0x13);
+    // public Register8 D { get; set; } = new(0x00);
+    // public Register8 E { get; set; } = new(0xD8);
+    // public RegisterFlags F { get; set; } = new(0xB0);
+    // public Register8 H { get; set; } = new(0x01);
+    // public Register8 L { get; set; } = new(0x4D);
+    // public Register16 SP { get; set; } = new(0xFFFE);
+    // public Register16 PC { get; set; } = new(0x100);
+    
+    public Register8 A { get; set; } = new(0x00);
     public Register8 B { get; set; } = new(0x00);
-    public Register8 C { get; set; } = new(0x13);
+    public Register8 C { get; set; } = new(0x00);
     public Register8 D { get; set; } = new(0x00);
-    public Register8 E { get; set; } = new(0xD8);
-    public RegisterFlags F { get; set; } = new(0xB0);
-    public Register8 H { get; set; } = new(0x01);
-    public Register8 L { get; set; } = new(0x4D);
+    public Register8 E { get; set; } = new(0x00);
+    public RegisterFlags F { get; set; } = new(0x00);
+    public Register8 H { get; set; } = new(0x00);
+    public Register8 L { get; set; } = new(0x0);
+    public Register16 SP { get; set; } = new(0x0000);
+    public Register16 PC { get; set; } = new(0x0000);
 
     public Register16 AF
     {
@@ -66,9 +79,6 @@ public class Cpu
             L.SetValue(low);
         }
     }
-
-    public Register16 SP { get; set; } = new(0xFFFE);
-    public Register16 PC { get; set; } = new(0x100);
 
     private AddressBus _addressBus;
 

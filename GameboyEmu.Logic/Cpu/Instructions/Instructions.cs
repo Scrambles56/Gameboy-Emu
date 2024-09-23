@@ -21,9 +21,13 @@ public static class Instructions
     private static Dictionary<byte, Instruction> CbInstructions { get; set; } = new List<Instruction>
         {
         }
+        .Concat(CheckBitInstructions.CbInstructions)
         .Concat(ResetInstructions.CbInstructions)
+        .Concat(SetBitInstructions.CbInstructions)
         .Concat(ShiftRightLogicallyInstructions.CbInstructions)
         .Concat(RotateInstructions.CbInstructions)
+        .Concat(SwapBitsInstructions.CbInstructions)
+        .Concat(ShiftInstructions.CbInstructions)
         .ToDictionary(i => i.Opcode);
 
     public static Dictionary<byte, Instruction> Instrs { get; set; } = new List<Instruction>
