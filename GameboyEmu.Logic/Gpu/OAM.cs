@@ -4,18 +4,16 @@ using GameboyEmu.Logic.Memory;
 
 namespace GameboyEmu.Logic.Gpu;
 
-public class OAM : RAM
+using Microsoft.Extensions.Logging;
+
+public class OAM(ILogger logger) : RAM(160, 0xFE00)
 {
     public bool IsAccessible { get; set; } = true;
     
-    public OAM()
-        : base(160, 0xFE00)
-    {
-    }
 
     public override byte ReadByte(ushort address)
     {
-        Console.WriteLine("OAM ReadByte");
+        logger.LogInformation("OAM ReadByte");
         
         if (!IsAccessible)
         {
@@ -28,7 +26,7 @@ public class OAM : RAM
     
     public override void WriteByte(ushort address, byte value)
     {
-        Console.WriteLine("OAM WriteByte");
+        logger.LogInformation("OAM WriteByte");
         
         if (!IsAccessible)
         {

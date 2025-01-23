@@ -2,6 +2,7 @@ namespace GameboyEmu.Cpu;
 
 using Logic.Cpu.Extensions;
 using Logic.IOController;
+using Microsoft.Extensions.Logging;
 
 public partial class Cpu
 {
@@ -17,9 +18,12 @@ public partial class Cpu
         {
             return false;
         }
-        
-        Console.WriteLine($"Handling interrupt {interrupt.ToString()}");
-        
+
+        if (!DocMode)
+        {
+            _logger.LogInformation("Handling interrupt {InterruptType}", interrupt.ToString());
+        }
+
         _addressBus.ClearInterrupt(interrupt);
         _addressBus.InterruptMasterEnabledFlag = false;
         

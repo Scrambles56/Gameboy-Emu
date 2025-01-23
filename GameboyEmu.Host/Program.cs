@@ -8,11 +8,34 @@ using GameboyEmu.Logic.Memory;
 using GameboyEmu.Windowing;
 using Microsoft.Extensions.Configuration;
 using Nito.AsyncEx;
+using Serilog;
+using Serilog.Extensions.Logging;
 
+bool toConsole = true;
+
+var logFile = $"logs/log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
+
+LoggerConfiguration logConfiguration;
+if (toConsole)
+{
+    logConfiguration = new LoggerConfiguration()
+        .WriteTo.Console(
+            outputTemplate: "{Message:lj}{NewLine}{Exception}"    
+        );
+}
+else
+{
+    logConfiguration = new LoggerConfiguration()
+        .WriteTo.File(logFile);
+}
+
+var msLogger = new SerilogLoggerProvider(logConfiguration.CreateLogger()).CreateLogger("Default");
 
 var configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
+
+var docMode = configuration.GetValue<bool>("doc");
 
 var rom = configuration.GetValue<string>("rom");
 if (rom == null)
@@ -23,8 +46,8 @@ if (rom == null)
 
 var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
 var vram = new VRam();
-var oam = new OAM();
-var lcdControl = new LcdControl();
+var oam = new OAM(msLogger);
+var lcdControl = new LcdControl(msLogger, docMode);
 
 var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
@@ -36,7 +59,13 @@ var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, 
 var gpu = new Gpu(vram, oam, lcdControl, addressBus);
 
 
-var cpu = new Cpu(addressBus);
+var cpu = new Cpu(addressBus, msLogger);
+if (docMode)
+{
+    cpu.DocMode = true;
+    cpu.SetToPostBootRomState();
+}
+
 cpu.LogGbDocState();
 
 var shouldPrintTable = configuration.GetValue<bool>("printTable");

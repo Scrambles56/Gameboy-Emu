@@ -7,7 +7,7 @@ using Cpu;
 using Cpu.Instructions;
 using IOController;
 using Memory;
-
+using Microsoft.Extensions.Logging.Abstractions;
 
 public class InstructionTests
 {
@@ -41,17 +41,19 @@ public class InstructionTests
 
     public InstructionTests()
     {
+        var logger = NullLogger.Instance;
+        
         var cartridgePath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "../../../..", "roms", "gb-test-roms-master", "cpu_instrs", "cpu_instrs.gb"));
         var cartridge = new Cartridge.Cartridge(cartridgePath).Load().GetAwaiter().GetResult();
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);
         var upperWorkram = new WorkRAM(0xD000);
-        var oam = new OAM();
+        var oam = new OAM(logger);
         var highRam = new HighRam();
-        var lcdControl = new LcdControl();
+        var lcdControl = new LcdControl(logger, false);
         var ioBus = new IOBus(lcdControl);
         var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram, oam);
-        Cpu = new GameboyEmu.Cpu.Cpu(addressBus);
+        Cpu = new(addressBus, logger);
     }
 
     [Theory]

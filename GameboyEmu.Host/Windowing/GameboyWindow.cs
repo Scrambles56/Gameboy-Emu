@@ -19,8 +19,8 @@ public static class GameboyWindow
     {
         var width = ScreenWidth * Scaling + TileDataWidth * Scaling;
         var height = Math.Max(ScreenHeight * Scaling, TileDataHeight * Scaling);
-        Raylib.InitWindow(width, height, GetTitle(cpu));
         Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
+        Raylib.InitWindow(width, height, GetTitle(cpu));
         
         Raylib.SetTargetFPS(60);
         while (!Raylib.WindowShouldClose())

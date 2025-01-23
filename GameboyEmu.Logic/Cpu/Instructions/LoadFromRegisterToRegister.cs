@@ -55,6 +55,7 @@ public static class LoadInstructions
         new LoadFromRegisterToRegister(0x7C, "LD A,H", 4, RegisterType.A, RegisterType.H),
         new LoadFromRegisterToRegister(0x7D, "LD A,L", 4, RegisterType.A, RegisterType.L),
         new LoadFromRegisterToRegister(0x7F, "LD A,A", 4, RegisterType.A, RegisterType.A),
+        new LoadFromRegisterToRegister(0xF9, "LD SP,HL", 8, RegisterType.SP, RegisterType.HL),
         
         new LoadDirectToRegisterInstruction(0x06, "LD B,d8", 8, InstructionSize.D8, RegisterType.B),
         new LoadDirectToRegisterInstruction(0x0E, "LD C,d8", 8, InstructionSize.D8, RegisterType.C),

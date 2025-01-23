@@ -52,6 +52,41 @@ public static class Instructions
                 {
                     cpu.cbMode = true;
                 }
+            ),
+            new GenericInstruction(
+                0x27,
+                "DAA",
+                4,
+                action: (_, cpu, _) =>
+                {
+                    var adjustment = 0;
+                    int result;
+                    if (cpu.F.SubtractFlag)
+                    {
+                        adjustment += cpu.F.HalfCarryFlag ? 0x6 : 0;
+                        adjustment += cpu.F.CarryFlag ? 0x60 : 0;
+                        
+                        result = cpu.A - adjustment;
+                        var carry = result < 0;
+                        
+                        cpu.A.SetValue((byte)result);
+                        cpu.F.CarryFlag = carry;
+                    }
+                    else
+                    {
+                        adjustment += cpu.F.HalfCarryFlag || (cpu.A & 0xF) > 0x9 ? 0x6 : 0;
+                        adjustment += cpu.F.CarryFlag || cpu.A > 0x9F ? 0x60 : 0;
+                        
+                        result = cpu.A + adjustment;
+                        var carry = result > 0xFF;
+                        
+                        cpu.A.SetValue((byte)result);
+                        cpu.F.CarryFlag = carry;
+                    }
+                    
+                    cpu.F.ZeroFlag = result == 0;
+                    cpu.F.HalfCarryFlag = false;
+                }
             )
         }
         .Concat(ReturnInstructions.Instructions)

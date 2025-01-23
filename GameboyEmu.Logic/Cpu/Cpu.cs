@@ -7,19 +7,10 @@ using static GameboyEmu.Logic.Cpu.Instructions.Instructions;
 namespace GameboyEmu.Cpu;
 
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 public partial class Cpu
 {
-    // public Register8 A { get; set; } = new(0x01);
-    // public Register8 B { get; set; } = new(0x00);
-    // public Register8 C { get; set; } = new(0x13);
-    // public Register8 D { get; set; } = new(0x00);
-    // public Register8 E { get; set; } = new(0xD8);
-    // public RegisterFlags F { get; set; } = new(0xB0);
-    // public Register8 H { get; set; } = new(0x01);
-    // public Register8 L { get; set; } = new(0x4D);
-    // public Register16 SP { get; set; } = new(0xFFFE);
-    // public Register16 PC { get; set; } = new(0x100);
     
     public Register8 A { get; set; } = new(0x00);
     public Register8 B { get; set; } = new(0x00);
@@ -81,15 +72,20 @@ public partial class Cpu
     }
 
     private AddressBus _addressBus;
+    private readonly ILogger _logger;
 
     private FetchedData? FetchedData { get; set; }
 
     public bool cbMode = false;
     private Dictionary<string, int> _executedInstructions = new();
 
-    public Cpu(AddressBus addressBus)
+    public Cpu(
+        AddressBus addressBus,
+        ILogger logger
+    )
     {
         _addressBus = addressBus;
+        _logger = logger;
     }
 
 
@@ -125,7 +121,7 @@ public partial class Cpu
             FetchedData = instruction.FetchData(this);
             instruction.Execute(this, FetchedData);
 
-            if (instruction.Opcode != 0xCB)
+            if (DocMode && instruction.Opcode != 0xCB)
             {
                 LogGbDocState();
             }
@@ -135,7 +131,7 @@ public partial class Cpu
         }
         else
         {
-            Console.WriteLine($"Unknown instruction: {(isCbMode ? "CB" : "")}" + opCode.ToString("X2"));
+            _logger.LogWarning("Unknown instruction: {OpCode}", $"{(cbMode ? "CB" : "")}{opCode:X2}");
             Debugger.Break();
         }
 

@@ -51,6 +51,13 @@ public class PopInstruction : Instruction
         cpu.SP++;
         
         var value = (ushort)((high << 8) | low);
+
+        // Courtesy of Reddit: https://www.reddit.com/r/EmuDev/comments/hi237c/gameboy_blargg_test_special01_errors_on_pop_af/
+        if (Register1 == RegisterType.AF)
+        {
+            value = (ushort)(value & 0xFFF0);
+        }
+        
         cpu.WriteUshortRegister(Register1, value);
     }
 }

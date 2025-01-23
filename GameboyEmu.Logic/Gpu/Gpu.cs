@@ -45,6 +45,8 @@ public class Gpu
         
         var x = framePointer % ScreenWidth;
         var y = framePointer / ScreenWidth;
+        
+        _lcdControl.WriteByte(0xFF44, (byte)y);
 
         if (y >= 144)
         {
