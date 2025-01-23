@@ -15,7 +15,6 @@ public class IOBus : IMemoryAddressable
         _lcdControl = lcdControl;
     }
 
-
     public byte ReadByte(ushort address)
     {
         if (address.IsBetween(0xFF40, 0xFF4B))
@@ -37,4 +36,28 @@ public class IOBus : IMemoryAddressable
         
         _data[address - _lowerBound] = value;
     }
+    
+    public void RequestInterrupt(Interrupt interrupt)
+    {
+        var requestedInterrupts = ReadByte(0xFF0F);
+        requestedInterrupts |= (byte)interrupt;
+        WriteByte(0xFF0F, requestedInterrupts);
+    }
+    
+    public void ClearInterrupt(Interrupt interrupt)
+    {
+        var requestedInterrupts = ReadByte(0xFF0F);
+        requestedInterrupts &= (byte)~interrupt;
+        WriteByte(0xFF0F, requestedInterrupts);
+    }
+    
+}
+
+public enum Interrupt
+{
+    VBlank = 0b1,
+    LcdStat = 0b10,
+    Timer = 0b100,
+    Serial = 0b1000,
+    Joypad = 0b10000
 }

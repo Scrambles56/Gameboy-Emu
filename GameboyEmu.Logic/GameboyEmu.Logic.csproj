@@ -7,6 +7,15 @@
 
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Update="Cpu\Cpu.Interrupts.cs">
+        <DependentUpon>Cpu.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Cpu\Cpu.Debug.cs">
+        <DependentUpon>Cpu.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 
 
 

@@ -23,16 +23,19 @@ if (rom == null)
 
 var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
 var vram = new VRam();
+var oam = new OAM();
 var lcdControl = new LcdControl();
-
-var gpu = new Gpu(vram, lcdControl);
-
 
 var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
 var highRam = new HighRam();
 var ioBus = new IOBus(lcdControl);
-var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram);
+var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram, oam);
+
+
+var gpu = new Gpu(vram, oam, lcdControl, addressBus);
+
+
 var cpu = new Cpu(addressBus);
 cpu.LogGbDocState();
 
@@ -44,18 +47,20 @@ if (shouldPrintTable)
 }
 
 
-var cpuTask = Task.Run(async () =>
+var cpuTask = Task.Run(() =>
 {
+    var instructionDelay = 0;
     while (true)
     {
         try
         {
-            await cpu.Step();
-
-            if (cpu.LastInstruction == null)
+            if (instructionDelay == 0)
             {
-                break;
+                instructionDelay = cpu.Step();
             }
+            
+            gpu.Tick();
+            instructionDelay--;
         }
         catch
         {
@@ -69,29 +74,7 @@ var cpuTask = Task.Run(async () =>
     }
 });
 
-var gpuTask = Task.Run(() =>
-{
-    while (true)
-    {
-        try
-        {
-            gpu.Tick();
-        }
-        catch
-        {
-            throw;
-        }
-    }
-});
-
 GameboyWindow.Open(cpu, gpu);
 
-var res = await Task.WhenAny(new List<Task>
-{
-    cpuTask,
-    gpuTask
-});
-
-Console.WriteLine(res == cpuTask ? "CPU task finished first." : "GPU task finished first.");
-
+await cpuTask;
 return 1;

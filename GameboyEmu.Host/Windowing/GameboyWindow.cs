@@ -6,8 +6,8 @@ namespace GameboyEmu.Windowing;
 
 public static class GameboyWindow
 {
-    private const int ScreenWidth = 160;
-    private const int ScreenHeight = 144;
+    private const int ScreenWidth = 456;
+    private const int ScreenHeight = 153;
     private const int Scaling = 5;
     
     private const int TileDataWidth = 16 * 8;
@@ -20,6 +20,7 @@ public static class GameboyWindow
         var width = ScreenWidth * Scaling + TileDataWidth * Scaling;
         var height = Math.Max(ScreenHeight * Scaling, TileDataHeight * Scaling);
         Raylib.InitWindow(width, height, GetTitle(cpu));
+        Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
         
         Raylib.SetTargetFPS(60);
         while (!Raylib.WindowShouldClose())

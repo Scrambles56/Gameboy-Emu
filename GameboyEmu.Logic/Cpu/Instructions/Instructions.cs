@@ -8,14 +8,12 @@ public static class Instructions
     {
         if (!cpu.cbMode)
         {
-            return Instrs.TryGetValue(opcode, out var instr) ? instr : null;
+            return Instrs.GetValueOrDefault(opcode);
         }
-        else
-        {
-            var instruction = CbInstructions.TryGetValue(opcode, out var instr) ? instr : null;
-            cpu.cbMode = false;
-            return instruction;
-        }
+
+        var instruction = CbInstructions.GetValueOrDefault(opcode);
+        cpu.cbMode = false;
+        return instruction;
     }
 
     private static Dictionary<byte, Instruction> CbInstructions { get; set; } = new List<Instruction>
@@ -39,6 +37,7 @@ public static class Instructions
                 4,
                 action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(false); }
             ),
+            // TODO: The effect of ei is delayed by one instruction. This means that ei followed immediately by di does not allow any interrupts between them
             new GenericInstruction(
                 0xFB,
                 "EI",

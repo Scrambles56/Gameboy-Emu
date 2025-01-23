@@ -31,7 +31,7 @@ public class RAM : IMemoryAddressable
         return Data[indexAddress];
     }
     
-    public void WriteByte(ushort address, byte value)
+    public virtual void WriteByte(ushort address, byte value)
     {
         Data[address - LowerBound] = value;
         Written[address - LowerBound] = true;

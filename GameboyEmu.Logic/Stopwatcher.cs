@@ -2,7 +2,7 @@
 
 public class Stopwatcher : IDisposable
 {
-    private Stopwatch _sw;
+    private Stopwatch _sw = new();
     private Action<TimeSpan> _callback;
 
     public Stopwatcher(Action<TimeSpan> callback)

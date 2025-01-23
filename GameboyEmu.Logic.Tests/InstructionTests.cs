@@ -46,10 +46,11 @@ public class InstructionTests
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);
         var upperWorkram = new WorkRAM(0xD000);
+        var oam = new OAM();
         var highRam = new HighRam();
         var lcdControl = new LcdControl();
         var ioBus = new IOBus(lcdControl);
-        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram);
+        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram, oam);
         Cpu = new GameboyEmu.Cpu.Cpu(addressBus);
     }
 
