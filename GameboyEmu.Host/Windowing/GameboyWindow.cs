@@ -6,19 +6,21 @@ namespace GameboyEmu.Windowing;
 
 public static class GameboyWindow
 {
-    private const int ScreenWidth = 456;
-    private const int ScreenHeight = 153;
+    private const int ScreenWidth = 160;
+    private const int ScreenHeight = 144;
     private const int Scaling = 5;
     
     private const int TileDataWidth = 16 * 8;
     private const int TileDataHeight = 24 * 8;
     // private const int TileDataWidth = 1 * 8;
     // private const int TileDataHeight = 1 * 8;
+
+    private const bool ShowTileData = true;
     
-    public static unsafe void Open(Cpu.Cpu cpu, Gpu gpu)
+    public static void Open(Cpu.Cpu cpu, Gpu gpu)
     {
-        var width = ScreenWidth * Scaling + TileDataWidth * Scaling;
-        var height = Math.Max(ScreenHeight * Scaling, TileDataHeight * Scaling);
+        var width = ScreenWidth * Scaling + (ShowTileData ? TileDataWidth * Scaling : 0);
+        var height = Math.Max(ScreenHeight * Scaling, ShowTileData ? TileDataHeight * Scaling : 0);
         Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
         Raylib.InitWindow(width, height, GetTitle(cpu));
         
@@ -31,7 +33,10 @@ public static class GameboyWindow
             Raylib.ClearBackground(Color.Black);
 
             DrawScreen(gpu, new Vector2(0,0));
-            DrawTileData(gpu, new Vector2(-160 * Scaling, 0));
+            if (ShowTileData)
+            {
+                DrawTileData(gpu, new Vector2(-160 * Scaling, 0));
+            }
 
             Raylib.EndDrawing();
         }
@@ -40,29 +45,6 @@ public static class GameboyWindow
     }
     
     private static string GetTitle(Cpu.Cpu cpu) => "Gameboy Emulator";
-
-    private static void DrawTestTile(Vector2 position)
-    {
-        var tile = Tile.TestTile;
-        var tileWidth = 8;
-        var tileHeight = 8;
-        
-        var pixelBuffer = new byte[tileWidth * tileHeight];
-        for (var i = 0; i < pixelBuffer.Length; i++)
-        {
-            var x = i % tileWidth;
-            var y = i / tileWidth;
-            
-            var pixel = tile.GetPixel(x, y);
-            pixelBuffer[i] = pixel;
-        }
-        
-        var texture = MakeTextureForBuffer(pixelBuffer, tileWidth, tileHeight);
-        
-        var srcRec = new Rectangle(0, 0, texture.Width, texture.Height);
-        var dstRec = new Rectangle(0, 0, tileWidth * Scaling, tileHeight * Scaling);
-        Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
-    }
     
     private static void DrawScreen(Gpu gpu, Vector2 position)
     {
@@ -107,7 +89,7 @@ public static class GameboyWindow
         for (var i = 0; i < pixelBuffer.Length; i++)
         {
             var b = pixelBuffer[i];
-            colors[i] = new Color(b,b,b,(byte)255);
+            colors[i] = _colors[b];
         }
                 
         var image = new Image
@@ -123,4 +105,11 @@ public static class GameboyWindow
         
         return texture;
     }
+
+    private static Dictionary<byte, Color> _colors = new(){
+        [0] = new Color(155,188,15, 255),
+        [85] = new Color(139,172,15, 255),
+        [170] = new Color(48,98,48, 255),
+        [255] = new Color(15,56,15, 255)
+    };
 }

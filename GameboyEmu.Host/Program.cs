@@ -11,16 +11,25 @@ using Nito.AsyncEx;
 using Serilog;
 using Serilog.Extensions.Logging;
 
-bool toConsole = true;
+
+var configuration = new ConfigurationBuilder()
+    .AddCommandLine(args)
+    .Build();
+
+var docMode = configuration.GetValue<bool>("doc");
+var rom = configuration.GetValue<string>("rom");
+
 
 var logFile = $"logs/log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
 
 LoggerConfiguration logConfiguration;
-if (toConsole)
+if (docMode)
 {
     logConfiguration = new LoggerConfiguration()
-        .WriteTo.Console(
-            outputTemplate: "{Message:lj}{NewLine}{Exception}"    
+        .WriteTo.Async(wt =>
+            wt.Console(
+                outputTemplate: "{Message:lj}{NewLine}{Exception}"
+            )
         );
 }
 else
@@ -30,14 +39,6 @@ else
 }
 
 var msLogger = new SerilogLoggerProvider(logConfiguration.CreateLogger()).CreateLogger("Default");
-
-var configuration = new ConfigurationBuilder()
-    .AddCommandLine(args)
-    .Build();
-
-var docMode = configuration.GetValue<bool>("doc");
-
-var rom = configuration.GetValue<string>("rom");
 if (rom == null)
 {
     Console.WriteLine("Please specify a rom file.");
@@ -75,11 +76,13 @@ if (shouldPrintTable)
     return 1;
 }
 
+var ctSource = new CancellationTokenSource();
+var token = ctSource.Token;
 
 var cpuTask = Task.Run(() =>
 {
     var instructionDelay = 0;
-    while (true)
+    while (!token.IsCancellationRequested)
     {
         try
         {
@@ -101,9 +104,10 @@ var cpuTask = Task.Run(() =>
             Console.Out.Flush();
         }
     }
-});
+}, token);
 
 GameboyWindow.Open(cpu, gpu);
 
+ctSource.Cancel();
 await cpuTask;
 return 1;

@@ -13,13 +13,17 @@ public class Gpu
     private readonly LcdControl _lcdControl;
     private readonly AddressBus _addressBus;
 
-    private const int ScreenWidth = 456;
-    private const int ScreenHeight = 153;
+    private const int TimingWidth = 456;
+    private const int TimingHeight = 153;
+    
+    private const int ScreenWidth = 160;
+    private const int ScreenHeight = 144;
     private byte[] _frameBuffer = new byte[ScreenWidth * ScreenHeight];
     
     public byte[] FrameBuffer => _frameBuffer.Clone() as byte[];
 
     private long TickCount { get; set; }
+    private long PxCounter { get; set; }
     
     public Gpu(
         VRam vram, 
@@ -41,28 +45,34 @@ public class Gpu
             return;
         }
         
-        var framePointer = (int)(TickCount % (ScreenWidth * ScreenHeight));
+        var framePointer = (int)(TickCount % (TimingWidth * TimingHeight));
         
-        var x = framePointer % ScreenWidth;
-        var y = framePointer / ScreenWidth;
+        var timingX = framePointer % TimingWidth;
+        var timingY = framePointer / TimingWidth;
         
-        _lcdControl.WriteByte(0xFF44, (byte)y);
+        _lcdControl.WriteByte(0xFF44, (byte)timingY);
 
-        if (y >= 144)
+        if (timingY >= 144)
         {
-            if (y == 144 && x == 0)
+            if (timingY == 144 && timingX == 0)
             {
                 _addressBus.RequestInterrupt(Interrupt.VBlank);
             }
         }
-        else if (x < 80)
+        else if (timingX < 80)
         {
             // OAM search time
         }
-        else if (x < 252)
+        else if (timingX < 252)
         {
+            var pxPointer = (int)(PxCounter % (ScreenWidth * ScreenHeight));
+            var pxX = pxPointer % ScreenWidth;
+            var pxY = pxPointer / ScreenWidth;
+            
             // Pixel transfer time
-            UpdateFrameBuffer(x - 80, y);
+            UpdateFrameBuffer(pxX, pxY);
+            
+            PxCounter++;
         }
         else
         {
