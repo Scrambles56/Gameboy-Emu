@@ -88,25 +88,24 @@ public static class Instructions
                         adjustment += cpu.F.HalfCarryFlag ? 0x6 : 0;
                         adjustment += cpu.F.CarryFlag ? 0x60 : 0;
                         
-                        var carry = adjustment > cpu.A;
                         result = cpu.A - adjustment;
                         
                         cpu.A.SetValue((byte)result);
-                        cpu.F.CarryFlag = carry;
                     }
                     else
                     {
                         adjustment += cpu.F.HalfCarryFlag || (cpu.A & 0x0F) > 0x09 ? 0x06 : 0;
-                        adjustment += cpu.F.CarryFlag || cpu.A > 0x99 ? 0x60 : 0;
+                        if (cpu.F.CarryFlag || cpu.A > 0x99)
+                        {
+                            adjustment += 0x60;
+                            cpu.F.CarryFlag = true;
+                        }
                         
                         result = cpu.A + adjustment;
-                        var carry = result > 0xFF;
-                        
                         cpu.A.SetValue((byte)result);
-                        cpu.F.CarryFlag = carry;
                     }
                     
-                    cpu.F.ZeroFlag = result == 0;
+                    cpu.F.ZeroFlag = (byte)result == 0;
                     cpu.F.HalfCarryFlag = false;
                 }
             )

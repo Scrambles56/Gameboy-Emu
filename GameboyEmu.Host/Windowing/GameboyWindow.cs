@@ -15,7 +15,7 @@ public static class GameboyWindow
     // private const int TileDataWidth = 1 * 8;
     // private const int TileDataHeight = 1 * 8;
 
-    private const bool ShowTileData = true;
+    private const bool ShowTileData = false;
     
     public static void Open(Cpu.Cpu cpu, Gpu gpu)
     {
