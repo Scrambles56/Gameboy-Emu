@@ -55,7 +55,25 @@ public static class LoadInstructions
         new LoadFromRegisterToRegister(0x7C, "LD A,H", 4, RegisterType.A, RegisterType.H),
         new LoadFromRegisterToRegister(0x7D, "LD A,L", 4, RegisterType.A, RegisterType.L),
         new LoadFromRegisterToRegister(0x7F, "LD A,A", 4, RegisterType.A, RegisterType.A),
-        new LoadFromRegisterToRegister(0xF9, "LD SP,HL", 8, RegisterType.SP, RegisterType.HL),
+        new LoadFromRegister16ToRegister16(0xF9, "LD SP,HL", 8, RegisterType.SP, RegisterType.HL),
+        new GenericInstruction(
+            0xF8,
+            "LD HL,SP+e8",
+            12,
+            InstructionSize.D8,
+            action: (_, cpu, data) =>
+            {
+                var sp = cpu.SP;
+                var e8 = data.ToByte();
+                var result = sp + e8;
+                cpu.WriteUshortRegister(RegisterType.HL, result);
+                
+                cpu.F.ZeroFlag = false;
+                cpu.F.SubtractFlag = false;
+                cpu.F.HalfCarryFlag = (sp & 0x0F) + (e8 & 0x0F) > 0xF;
+                cpu.F.CarryFlag = (sp & 0xFF) + e8 > 0xFF;
+            }
+        ),
         
         new LoadDirectToRegisterInstruction(0x06, "LD B,d8", 8, InstructionSize.D8, RegisterType.B),
         new LoadDirectToRegisterInstruction(0x0E, "LD C,d8", 8, InstructionSize.D8, RegisterType.C),
@@ -258,5 +276,20 @@ public class LoadFromRegisterToRegister : Instruction
     {
         var regVal = cpu.ReadByteRegister(Register2);
         cpu.WriteByteRegister(Register1, regVal);
+    }
+}
+
+public class LoadFromRegister16ToRegister16(
+    byte opcode, 
+    string mnemonic, 
+    int cycles, 
+    RegisterType register1 = RegisterType.None, 
+    RegisterType register2 = RegisterType.None
+) : Instruction(opcode, mnemonic, cycles, InstructionSize.None, register1, register2)
+{
+    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    {
+        var regVal = cpu.ReadUshortRegister(Register2);
+        cpu.WriteUshortRegister(Register1, regVal);
     }
 }

@@ -185,8 +185,27 @@ public static class AddInstructions
             8,
             RegisterType.SP
         ),
+        new GenericInstruction(
+            0xE8,
+            "ADD SP,e8",
+            16,
+            InstructionSize.D8,
+            action: (_, cpu, data) =>
+            {
+                var value = data.ToByte();
+                var result = cpu.SP + (sbyte)value;
+                
+                cpu.F.ZeroFlag = false;
+                cpu.F.SubtractFlag = false;
+                cpu.F.HalfCarryFlag = (cpu.SP & 0x0F) + (value & 0x0F) > 0x0F;
+                cpu.F.CarryFlag = (cpu.SP & 0xFF) + value > 0xFF;
+                
+                cpu.SP.SetValue((ushort)result);
+            }
+        )
     };
 }
+
 
 public class AddInstruction : Instruction
 {
