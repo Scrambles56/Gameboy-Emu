@@ -17,7 +17,7 @@ public static class GameboyWindow
 
     private const bool ShowTileData = false;
     
-    public static void Open(Cpu.Cpu cpu, Gpu gpu)
+    public static void Open(Cpu.Cpu cpu, Gpu gpu, CancellationToken token)
     {
         var width = ScreenWidth * Scaling + (ShowTileData ? TileDataWidth * Scaling : 0);
         var height = Math.Max(ScreenHeight * Scaling, ShowTileData ? TileDataHeight * Scaling : 0);
@@ -25,7 +25,7 @@ public static class GameboyWindow
         Raylib.InitWindow(width, height, GetTitle(cpu));
         
         Raylib.SetTargetFPS(60);
-        while (!Raylib.WindowShouldClose())
+        while (!Raylib.WindowShouldClose() || token.IsCancellationRequested)
         {
             
             Raylib.SetWindowTitle(GetTitle(cpu));

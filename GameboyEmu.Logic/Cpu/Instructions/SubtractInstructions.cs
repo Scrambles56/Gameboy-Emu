@@ -215,8 +215,8 @@ public class SubtractInstruction : Instruction
 
         cpu.F.ZeroFlag = (byte)result == 0;
         cpu.F.SubtractFlag = true;
-        cpu.F.HalfCarryFlag = (value1 & 0x0F) < (value2 & 0x0F);
-        cpu.F.CarryFlag = value1 < value2;
+        cpu.F.HalfCarryFlag = (((value1 & 0x0F) - (value2 & 0x0F) - (carry & 0x0F)) & 0x10) > 0;
+        cpu.F.CarryFlag = value1 < (value2 + carry);
         
     }
 }

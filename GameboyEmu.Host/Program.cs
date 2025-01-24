@@ -1,4 +1,5 @@
-﻿using GameboyEmu.Cpu;
+﻿using System.Diagnostics;
+using GameboyEmu.Cpu;
 using GameboyEmu.Logic.Cartridge;
 using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Instructions;
@@ -97,6 +98,8 @@ var cpuTask = Task.Run(() =>
         }
         catch
         {
+            Debugger.Break();
+            ctSource.Cancel();
             throw;
         }
         finally
@@ -107,7 +110,7 @@ var cpuTask = Task.Run(() =>
     }
 }, token);
 
-GameboyWindow.Open(cpu, gpu);
+GameboyWindow.Open(cpu, gpu, token);
 
 ctSource.Cancel();
 await cpuTask;

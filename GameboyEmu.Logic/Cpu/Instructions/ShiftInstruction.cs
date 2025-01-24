@@ -63,7 +63,7 @@ public class ShiftAddressLeftInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         var topBit = (value & 0x80) >> 7;
         value = (byte)(value << 1);
@@ -116,7 +116,7 @@ public class ShiftAddressRightInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         var bottomBit = value & 1;
         var topBit = value & 0x80;

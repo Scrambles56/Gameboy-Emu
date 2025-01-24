@@ -76,6 +76,17 @@ public static class Instructions
                 }
             ),
             new GenericInstruction(
+                0x37,
+                "SCF",
+                4,
+                action: (_, cpu, _) =>
+                {
+                    cpu.F.CarryFlag = true;
+                    cpu.F.SubtractFlag = false;
+                    cpu.F.HalfCarryFlag = false;
+                }
+            ),
+            new GenericInstruction(
                 0x27,
                 "DAA",
                 4,

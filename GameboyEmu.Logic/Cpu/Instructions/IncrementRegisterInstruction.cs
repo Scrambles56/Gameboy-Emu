@@ -82,12 +82,13 @@ public class IncrementAddressInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var regVal = cpu.ReadByteRegister(Register1);
-        regVal++;
-        cpu.WriteByteRegister(Register1, regVal);
+        var address = cpu.ReadUshortRegister(Register1);
+        var value = cpu.ReadByte(address);
+        value++;
+        cpu.WriteByte(address, value);
                     
-        cpu.F.ZeroFlag = regVal == 0;
+        cpu.F.ZeroFlag = value == 0;
         cpu.F.SubtractFlag = false;
-        cpu.F.HalfCarryFlag = (regVal & 0x0F) == 0x0F;
+        cpu.F.HalfCarryFlag = (value & 0x0F) == 0x00;
     }
 }

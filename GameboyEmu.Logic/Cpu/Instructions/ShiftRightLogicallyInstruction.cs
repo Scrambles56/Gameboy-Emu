@@ -83,21 +83,30 @@ public class ShiftRightLogicallyInstruction : Instruction
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         byte value;
+
+        int overflowBit;
+        byte newValue;
         if (_asAddress)
         {
             var address = cpu.ReadUshortRegister(Register1);
             value = cpu.ReadByte(address);
+            
+            overflowBit = value & 1;
+            newValue = (byte)(value >> 1);
+            
+            cpu.WriteByte(address, newValue);
         }
         else
         {
             value = cpu.ReadByteRegister(Register1);
+            
+            overflowBit = value & 1;
+            newValue = (byte)(value >> 1);
+            
+            cpu.WriteByteRegister(Register1, newValue);
         }
         
-        var overflowBit = value & 1;
         
-        var newValue = (byte)(value >> 1);
-        
-        cpu.WriteByteRegister(Register1, newValue);
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;

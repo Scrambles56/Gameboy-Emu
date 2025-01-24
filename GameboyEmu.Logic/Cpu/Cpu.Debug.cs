@@ -39,12 +39,15 @@ public partial class Cpu
     }
     private StringBuilder _logBuilder = new();
 
+
     /// <summary>
     /// Format of logging is important for this tool:
     /// https://github.com/robert/gameboy-doctor
     /// </summary>
-    public void LogGbDocState()
+    public string GbDocState
     {
+        get
+        {
         var a = A.GetValue();
         var b = B.GetValue();
         var c = C.GetValue();
@@ -78,7 +81,7 @@ public partial class Cpu
         }
 
 
-        var logString = new StringBuilder()
+        return new StringBuilder()
             .Append($"A:{a:X2} ")
             .Append($"F:{f:X2} ")
             .Append($"B:{b:X2} ")
@@ -89,11 +92,16 @@ public partial class Cpu
             .Append($"L:{l:X2} ")
             .Append($"SP:{sp:X4} ")
             .Append($"PC:{pc:X4} ")
-            .Append( $"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
+            .Append(
+                $"PCMEM:{ReadByte(pc):X2},{ReadByte((ushort)(pc + 1)):X2},{ReadByte((ushort)(pc + 2)):X2},{ReadByte((ushort)(pc + 3)):X2} ")
             // .Append($"SPMEM:{spInboundMemory[0]:X2},{spInboundMemory[1]:X2},{spInboundMemory[2]:X2},{spInboundMemory[3]:X2} ")
             .ToString();
-        
-        _logger.LogInformation(logString);
+        }
+    }
+
+    public void LogGbDocState()
+    {
+        _logger.LogInformation(GbDocState);
     }
 
     public void SetToPostBootRomState()

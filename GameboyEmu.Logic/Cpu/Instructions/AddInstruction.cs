@@ -255,7 +255,7 @@ public class AddInstruction : Instruction
 
         cpu.F.ZeroFlag = (byte)result == 0;
         cpu.F.SubtractFlag = false;
-        cpu.F.HalfCarryFlag = (value1 & 0x0F) + ((value2 + carry) & 0x0F) > 0x0F;
+        cpu.F.HalfCarryFlag = (value1 & 0x0F) + (value2 & 0x0F) + (carry & 0x0F) > 0x0F;
         cpu.F.CarryFlag = result > 0xFF;
     }
 }
@@ -277,7 +277,7 @@ public class AddRegisterToHlInstruction : Instruction
         var value2 = cpu.ReadUshortRegister(Register2);
         var result = value1 + value2;
 
-        cpu.WriteUshortRegister(Register1, (ushort)result);
+        cpu.WriteUshortRegister(Register2, (ushort)result);
 
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = (value1 & 0x0FFF) + (value2 & 0x0FFF) > 0x0FFF;

@@ -62,7 +62,7 @@ public abstract class Instruction
     
     public abstract void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data);
     
-    public FetchedData FetchData(GameboyEmu.Cpu.Cpu cpu) =>
+    public virtual FetchedData FetchData(GameboyEmu.Cpu.Cpu cpu) =>
         InstructionSize switch
         {
             InstructionSize.None => new(),

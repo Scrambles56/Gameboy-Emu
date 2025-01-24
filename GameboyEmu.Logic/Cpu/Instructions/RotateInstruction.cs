@@ -310,6 +310,8 @@ public class RotateRegisterRightThroughCarryInstruction : Instruction
         
         cpu.F.CarryFlag = (value & 0x01) != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -326,7 +328,7 @@ public class RotateAddressRightThroughCarryInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         var carry = cpu.F.CarryFlag ? 1 : 0;
         var newValue = (byte)((value >> 1) | (carry << 7));
@@ -335,6 +337,8 @@ public class RotateAddressRightThroughCarryInstruction : Instruction
         
         cpu.F.CarryFlag = (value & 0x01) != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -360,6 +364,8 @@ public class RotateRegisterLeftThroughCarryInstruction : Instruction
         
         cpu.F.CarryFlag = (value & 0x80) != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -376,7 +382,7 @@ public class RotateAddressLeftThroughCarryInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         var carry = cpu.F.CarryFlag ? 1 : 0;
         
@@ -386,6 +392,8 @@ public class RotateAddressLeftThroughCarryInstruction : Instruction
         
         cpu.F.CarryFlag = (value & 0x80) != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -410,6 +418,8 @@ public class RotateRegisterLeftInstruction : Instruction
         
         cpu.F.CarryFlag = topBit != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -426,7 +436,7 @@ public class RotateAddressLeftInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         
         var topBit = (value & 0x80) >> 7;
@@ -436,6 +446,8 @@ public class RotateAddressLeftInstruction : Instruction
         
         cpu.F.CarryFlag = topBit != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -460,6 +472,8 @@ public class RotateRegisterRightInstruction : Instruction
         
         cpu.F.CarryFlag = bottomBit != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }
 
@@ -476,7 +490,7 @@ public class RotateAddressRightInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         
         var bottomBit = value & 0x01;
@@ -486,5 +500,7 @@ public class RotateAddressRightInstruction : Instruction
         
         cpu.F.CarryFlag = bottomBit != 0;
         cpu.F.ZeroFlag = newValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
     }
 }

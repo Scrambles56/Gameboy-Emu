@@ -37,6 +37,9 @@ public class SwapRegisterBitsInstruction : Instruction
         cpu.WriteByteRegister(Register1, regValue);
         
         cpu.F.ZeroFlag = regValue == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
+        cpu.F.CarryFlag = false;
     }
 }
 
@@ -53,7 +56,7 @@ public class SwapAddressBitsInstruction : Instruction
 
     public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
-        var address = cpu.ReadByteRegister(Register1);
+        var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
         
         var lowerNibble = (byte)(value & 0x0F);
@@ -63,5 +66,8 @@ public class SwapAddressBitsInstruction : Instruction
         cpu.WriteByte(address, value);
         
         cpu.F.ZeroFlag = value == 0;
+        cpu.F.SubtractFlag = false;
+        cpu.F.HalfCarryFlag = false;
+        cpu.F.CarryFlag = false;
     }
 }

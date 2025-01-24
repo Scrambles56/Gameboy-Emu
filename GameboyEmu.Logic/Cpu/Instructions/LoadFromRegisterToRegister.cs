@@ -56,6 +56,9 @@ public static class LoadInstructions
         new LoadFromRegisterToRegister(0x7D, "LD A,L", 4, RegisterType.A, RegisterType.L),
         new LoadFromRegisterToRegister(0x7F, "LD A,A", 4, RegisterType.A, RegisterType.A),
         new LoadFromRegister16ToRegister16(0xF9, "LD SP,HL", 8, RegisterType.SP, RegisterType.HL),
+        
+        
+        // TODO: wtf, why is this not working? Blargg 03...
         new GenericInstruction(
             0xF8,
             "LD HL,SP+e8",
@@ -67,7 +70,7 @@ public static class LoadInstructions
                 var e8 = data.ToByte();
                 var result = sp + e8;
                 cpu.WriteUshortRegister(RegisterType.HL, result);
-                
+        
                 cpu.F.ZeroFlag = false;
                 cpu.F.SubtractFlag = false;
                 cpu.F.HalfCarryFlag = (sp & 0x0F) + (e8 & 0x0F) > 0xF;
@@ -251,6 +254,7 @@ public static class LoadInstructions
             0x36,
             "LD (HL),d8",
             12,
+            InstructionSize.D8,
             action: (instruction, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
