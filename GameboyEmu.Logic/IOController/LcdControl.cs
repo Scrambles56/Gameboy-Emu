@@ -4,7 +4,7 @@ namespace GameboyEmu.Logic.IOController;
 
 using Microsoft.Extensions.Logging;
 
-public class LcdControl(ILogger logger, bool docMode) : RAM(0x000B, 0xFF40)
+public class LcdControl(ILogger logger, bool docMode) : RAM(12, 0xFF40)
 {
     public override byte ReadByte(ushort address)
     {

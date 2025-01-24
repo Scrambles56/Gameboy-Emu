@@ -120,9 +120,14 @@ public class Gpu
     
     private void UpdateFrameBuffer(int x, int y)
     {
-        var tile = GetTile(x, y);
+        var scy = _lcdControl.ReadByte(0xFF42);
+        var scx = _lcdControl.ReadByte(0xFF43);
         
-        _frameBuffer[x + y * ScreenWidth] = tile.GetPixel(x % 8, y % 8);
+        var nX = (x + scx) % 256;
+        var nY = (y + scy) % 256;
         
+        var tile = GetTile(nX, nY);
+        
+        _frameBuffer[x + y * ScreenWidth] = tile.GetPixel(nX % 8, nY % 8);
     }
 }

@@ -8,7 +8,14 @@ public partial class Cpu
 {
     public void SetInterruptMasterFlag(bool state)
     {
-        _addressBus.InterruptMasterEnabledFlag = state;
+        if (state)
+        {
+            _addressBus.SetInterruptMasterEnableFlag = true;
+        }
+        else
+        {
+            _addressBus.InterruptMasterEnabledFlag = state;
+        }
     }
     
     public bool HandleInterrupts()

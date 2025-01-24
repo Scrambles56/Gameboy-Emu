@@ -18,12 +18,13 @@ var configuration = new ConfigurationBuilder()
 
 var docMode = configuration.GetValue<bool>("doc");
 var rom = configuration.GetValue<string>("rom");
+var useLogFile = configuration.GetValue<bool>("use-log-file");
 
 
 var logFile = $"logs/log-{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt";
 
 LoggerConfiguration logConfiguration;
-if (docMode)
+if (docMode && !useLogFile)
 {
     logConfiguration = new LoggerConfiguration()
         .WriteTo.Async(wt =>

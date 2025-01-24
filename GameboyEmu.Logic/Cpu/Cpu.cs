@@ -112,6 +112,12 @@ public partial class Cpu
             return 20;
         }
 
+        if (_addressBus.SetInterruptMasterEnableFlag)
+        {
+            _addressBus.InterruptMasterEnabledFlag = true;
+            _addressBus.SetInterruptMasterEnableFlag = false;
+        }
+
         var isCbMode = cbMode;
         var opCode = ReadNextByte();
         var instruction = GetInstruction(opCode, this);
