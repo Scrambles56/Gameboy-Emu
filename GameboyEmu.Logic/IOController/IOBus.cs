@@ -8,7 +8,7 @@ public class IOBus : IMemoryAddressable
 {
     private readonly LcdControl _lcdControl;
     private readonly ushort _lowerBound = 0xFF00;
-    private readonly byte[] _data = new byte[127];
+    private readonly byte[] _data = new byte[128];
     
     public IOBus(LcdControl lcdControl)
     {
@@ -17,6 +17,11 @@ public class IOBus : IMemoryAddressable
 
     public byte ReadByte(ushort address)
     {
+        if (address == 0xFF00)
+        {
+            return 0xFF;
+        }
+        
         if (address.IsBetween(0xFF40, 0xFF4B))
         {
             return _lcdControl.ReadByte(address);

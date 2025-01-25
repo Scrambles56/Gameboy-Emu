@@ -37,8 +37,81 @@ public static class CallInstructions
             "CALL a16",
             24,
            Condition.None 
+        ),
+        new RestartInstruction(
+            0xC7,
+            "RST $00",
+            16,
+            0x00
+        ),
+        new RestartInstruction(
+            0xCF,
+            "RST $08",
+            16,
+            0x08
+        ),
+        new RestartInstruction(
+            0xD7,
+            "RST $10",
+            16,
+            0x10
+        ),
+        new RestartInstruction(
+            0xDF,
+            "RST $18",
+            16,
+            0x18
+        ),
+        new RestartInstruction(
+            0xE7,
+            "RST $20",
+            16,
+            0x20
+        ),
+        new RestartInstruction(
+            0xEF,
+            "RST $28",
+            16,
+            0x28
+        ),
+        new RestartInstruction(
+            0xF7,
+            "RST $30",
+            16,
+            0x30
+        ),
+        new RestartInstruction(
+            0xFF,
+            "RST $38",
+            16,
+            0x38
         )
     };
+}
+
+public class RestartInstruction : Instruction
+{
+    private readonly ushort _address;
+
+    public RestartInstruction(
+        byte opcode, 
+        string mnemonic, 
+        int cycles, 
+        ushort address) 
+    : base(opcode, mnemonic, cycles, InstructionSize.None)
+    {
+        _address = address;
+    }
+
+    public override void Execute(Cpu cpu, FetchedData data)
+    {
+        var value = cpu.PC.GetValue().ToBytes();
+        cpu.SP--;
+        cpu.WriteByte(cpu.SP, value.high);
+        cpu.SP--;
+        cpu.WriteByte(cpu.SP, value.low);
+        cpu.PC = _address;
+    }
 }
 
 public class CallInstruction : Instruction

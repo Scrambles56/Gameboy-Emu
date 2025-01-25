@@ -39,13 +39,14 @@ public class AddressBus
         {
             Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Reading from Unusable Memory");
 
-            if (address.IsBetween(0x0000, 0x00FF))
-            {
-                return BootRoms.GameboyClassic[address];
-            }
 
-            if (address.IsBetween(0x0100, 0x7FFF))
+            if (address.IsBetween(0x0000, 0x7FFF))
             {
+                if (address.IsBetween(0x0000, 0x00FF) && _ioBus.ReadByte(0xFF50) == 0x00)
+                {
+                    return BootRoms.GameboyClassic[address];
+                }
+                
                 return _cartridge.Read(address);
             }
 
@@ -108,8 +109,6 @@ public class AddressBus
     {
         try
         {
-            Debug.Assert(!address.IsBetween(0xFEA0, 0xFEFF), "Writing to Unusable Memory");
-
             if (address.IsBetween(0x0000, 0x7FFF))
             {
                 _cartridge.Write(address, value);
@@ -148,6 +147,12 @@ public class AddressBus
             if (address.IsBetween(0xFE00, 0xFE9F))
             {
                 _oam.WriteByte(address, value);
+                return;
+            }
+            
+            if (address.IsBetween(0xFEA0, 0xFEFF))
+            {
+                // Console.WriteLine("Attempting write to Unusable Memory");
                 return;
             }
 

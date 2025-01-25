@@ -23,6 +23,7 @@ public class Cartridge
 
         return cartridgeType.MbcType switch
         {
+            MbcType.NoMbc => new LoadedCartridge(data),
             MbcType.Mbc3 => new Mbc3Cartridge(data),
             _ => new LoadedCartridge(data)
         };
@@ -92,11 +93,19 @@ public class LoadedCartridge
     
     public virtual void Write(ushort address, byte value)
     {
-        Debug.Assert(address >= 0x4000, "Writing to ROM Bank 00 is not allowed");
-        Debug.Assert(address >= 0x8000, "Writing to ROM Bank 01 - 7F is not allowed");
-        Debug.Assert(CartridgeType.MbcType == MbcType.Mbc3, "Only MBC3 is supported");
+        // if (address.IsBetween(0x0000, 0x3FFF))
+        // {
+        //     Debug.Assert(true, "Writing to ROM Bank 00 is not implemented");
+        // }
+        //
+        // else if (address.IsBetween(0x4000, 0x7FFF))
+        // {
+        //     Debug.Assert(true, "Writing to ROM Bank 01 - 7F is not implemented");
+        // }
+        //
+        // throw new NotImplementedException();
         
-        throw new NotImplementedException();
+        // Console.WriteLine($"Writing to Cartridge is not implemented, Address: {address:X4}, Value: {value:X2}");
     }
 
     public override string? ToString()

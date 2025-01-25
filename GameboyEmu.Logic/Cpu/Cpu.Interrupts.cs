@@ -18,6 +18,12 @@ public partial class Cpu
         }
     }
     
+    public void SetInterruptMasterFlagImmediate(bool state)
+    {
+        _addressBus.InterruptMasterEnabledFlag = state;
+    }
+    
+    
     public bool HandleInterrupts()
     {
         var req = _addressBus.GetRequestedInterrupt();

@@ -32,6 +32,20 @@ public static class ReturnInstructions
             "RET C",
             20,
             Condition.C
+        ),
+        new GenericInstruction(
+            0xD9,
+            "RETI",
+            16,
+            action: (_, cpu, _) =>
+            {
+                cpu.SetInterruptMasterFlagImmediate(true);
+                var low = cpu.ReadByte(cpu.SP);
+                cpu.SP++;
+                var high = cpu.ReadByte(cpu.SP);
+                cpu.SP++;
+                cpu.PC.SetValue((ushort)((high << 8) | low));
+            }    
         )
     };
 }

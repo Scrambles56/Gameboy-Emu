@@ -47,7 +47,8 @@ if (rom == null)
     return 2;
 }
 
-var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
+var cartridge = await new Cartridge(rom).Load();
+
 var vram = new VRam();
 var oam = new OAM(msLogger);
 var lcdControl = new LcdControl(msLogger, docMode);

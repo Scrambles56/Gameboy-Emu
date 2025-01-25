@@ -31,6 +31,7 @@ public static class GameboyWindow
             Raylib.SetWindowTitle(GetTitle(cpu));
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.Black);
+            
 
             DrawScreen(gpu, new Vector2(0,0));
             if (ShowTileData)
