@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿using GameboyEmu.Logic.IOController;
+using Raylib_cs;
 
 namespace GameboyEmu.Windowing;
 
@@ -16,24 +17,36 @@ public class Controller
         { GbButton.Select, KeyboardKey.RightShift }
     };
     
-    private List<GbButton> GetPressedButtons()
+    private readonly Dictionary<GbButton, bool> _buttonStates = new()
     {
-        return ButtonMappings.Keys
-            .Where(button => Raylib.IsKeyDown(ButtonMappings[button]))
-            .ToList();
+        { GbButton.Up, false },
+        { GbButton.Down, false },
+        { GbButton.Left, false },
+        { GbButton.Right, false },
+        { GbButton.A, false },
+        { GbButton.B, false },
+        { GbButton.Start, false },
+        { GbButton.Select, false }
+    };
+    
+    public void Update(InputControl inputControl)
+    {
+        foreach (var (button, key) in ButtonMappings)
+        {
+            var previousState = _buttonStates[button];
+            var currentState = Raylib.IsKeyDown(key);
+            
+            if (currentState && !previousState)
+            {
+                inputControl.PressButton(button);
+            }
+            else if (!currentState && previousState)
+            {
+                inputControl.ReleaseButton(button);
+            }
+            
+            _buttonStates[button] = currentState;
+        }
     }
     
-    public bool IsKeyDown(GbButton button) => Raylib.IsKeyDown(ButtonMappings[button]);
-}
-
-public enum GbButton
-{
-    Up,
-    Down,
-    Left,
-    Right,
-    A,
-    B,
-    Start,
-    Select
 }

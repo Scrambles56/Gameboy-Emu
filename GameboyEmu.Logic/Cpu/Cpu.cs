@@ -2,6 +2,7 @@
 using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Cpu.Instructions;
+using GameboyEmu.Logic.IOController;
 using static GameboyEmu.Logic.Cpu.Instructions.Instructions;
 
 namespace GameboyEmu.Cpu;
@@ -71,7 +72,8 @@ public partial class Cpu
         }
     }
 
-    private AddressBus _addressBus;
+    private readonly AddressBus _addressBus;
+    private readonly InterruptsController _interruptsController;
     private readonly ILogger _logger;
 
     private FetchedData? FetchedData { get; set; }
@@ -81,10 +83,12 @@ public partial class Cpu
 
     public Cpu(
         AddressBus addressBus,
+        InterruptsController interruptsController,
         ILogger logger
     )
     {
         _addressBus = addressBus;
+        _interruptsController = interruptsController;
         _logger = logger;
     }
 
@@ -112,10 +116,10 @@ public partial class Cpu
             return 20;
         }
 
-        if (_addressBus.SetInterruptMasterEnableFlag)
+        if (_interruptsController.SetInterruptMasterEnabledFlag)
         {
-            _addressBus.InterruptMasterEnabledFlag = true;
-            _addressBus.SetInterruptMasterEnableFlag = false;
+            _interruptsController.InterruptMasterEnabledFlag = true;
+            _interruptsController.SetInterruptMasterEnabledFlag = false;
         }
 
         var isCbMode = cbMode;

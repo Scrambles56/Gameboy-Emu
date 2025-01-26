@@ -4,27 +4,30 @@ using GameboyEmu.Logic.Memory;
 
 namespace GameboyEmu.Logic.IOController;
 
-public class IOBus : IMemoryAddressable
+public class IOBus(
+    LcdControl lcdControl,
+    InputControl inputControl,
+    InterruptsController interruptsController
+) : IMemoryAddressable
 {
-    private readonly LcdControl _lcdControl;
     private readonly ushort _lowerBound = 0xFF00;
     private readonly byte[] _data = new byte[128];
-    
-    public IOBus(LcdControl lcdControl)
-    {
-        _lcdControl = lcdControl;
-    }
 
     public byte ReadByte(ushort address)
     {
         if (address == 0xFF00)
         {
-            return 0xFF;
+            return inputControl.ReadByte(address);
+        }
+        
+        if (address == 0xFF0F)
+        {
+            return interruptsController.ReadByte(address);
         }
         
         if (address.IsBetween(0xFF40, 0xFF4B))
         {
-            return _lcdControl.ReadByte(address);
+            return lcdControl.ReadByte(address);
         }
         
         return _data[address - _lowerBound];
@@ -32,28 +35,26 @@ public class IOBus : IMemoryAddressable
 
     public void WriteByte(ushort address, byte value)
     {
+        if (address == 0xFF00)
+        {
+            inputControl.WriteByte(address, value);
+            return;
+        }
+
+        if (address == 0xFF0F)
+        {
+            interruptsController.WriteByte(address, value);
+            return;
+        }
+        
         if (address.IsBetween(0xFF40, 0xFF4B))
         {
-            _lcdControl.WriteByte(address, value);
+            lcdControl.WriteByte(address, value);
             return;
         }
         
         
         _data[address - _lowerBound] = value;
-    }
-    
-    public void RequestInterrupt(Interrupt interrupt)
-    {
-        var requestedInterrupts = ReadByte(0xFF0F);
-        requestedInterrupts |= (byte)interrupt;
-        WriteByte(0xFF0F, requestedInterrupts);
-    }
-    
-    public void ClearInterrupt(Interrupt interrupt)
-    {
-        var requestedInterrupts = ReadByte(0xFF0F);
-        requestedInterrupts &= (byte)~interrupt;
-        WriteByte(0xFF0F, requestedInterrupts);
     }
     
 }

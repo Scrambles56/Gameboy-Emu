@@ -9,26 +9,32 @@ namespace GameboyEmu.Logic.Cpu;
 
 public class AddressBus
 {
-    public byte EnabledInterrupts { get; set; }
-    public bool InterruptMasterEnabledFlag { get; set; } = false;
-    public bool SetInterruptMasterEnableFlag { get; set; } = false;
-
     private readonly LoadedCartridge _cartridge;
     private readonly WorkRAM _lowerWorkRam;
     private readonly WorkRAM _upperWorkRam;
     private readonly HighRam _highRam;
     private readonly IOBus _ioBus;
+    private readonly InterruptsController _interruptsController;
     private readonly VRam _vram;
     private readonly OAM _oam;
 
-    public AddressBus(LoadedCartridge cartridge, WorkRAM lowerWorkRam, WorkRAM upperWorkRam, HighRam highRam,
-        IOBus ioBus, VRam vram, OAM oam)
+    public AddressBus(
+        LoadedCartridge cartridge, 
+        WorkRAM lowerWorkRam,
+        WorkRAM upperWorkRam, 
+        HighRam highRam,
+        IOBus ioBus,
+        InterruptsController interruptsController,
+        VRam vram, 
+        OAM oam
+    )
     {
         _cartridge = cartridge;
         _lowerWorkRam = lowerWorkRam;
         _upperWorkRam = upperWorkRam;
         _highRam = highRam;
         _ioBus = ioBus;
+        _interruptsController = interruptsController;
         _vram = vram;
         _oam = oam;
     }
@@ -92,8 +98,7 @@ public class AddressBus
 
             if (address == 0xFFFF)
             {
-                var mask = (byte)(InterruptMasterEnabledFlag ? 0xFF : 0x00);
-                return (byte)(EnabledInterrupts & mask);
+                return _interruptsController.ReadByte(address);
             }
 
             throw new NotImplementedException($"Not implemented reads for Address: {address:X4}");
@@ -170,7 +175,7 @@ public class AddressBus
 
             if (address == 0xFFFF)
             {
-                EnabledInterrupts = value;
+                _interruptsController.WriteByte(address, value);
                 return;
             }
 
@@ -181,63 +186,5 @@ public class AddressBus
             Debugger.Break();
             throw;
         }
-    }
-
-    public Interrupt? GetRequestedInterrupt()
-    {
-        if (!InterruptMasterEnabledFlag)
-        {
-            return null;
-        }
-
-        var requests = _ioBus.ReadByte(0xFF0F);
-        var enabled = EnabledInterrupts;
-
-        var requested = requests & enabled;
-
-        // Return first enabled interrupt, from smallest bit
-
-        if (requested == 0)
-        {
-            return null;
-        }
-
-        if ((requested & (byte)Interrupt.VBlank) != 0)
-        {
-            return Interrupt.VBlank;
-        }
-
-        if ((requested & (byte)Interrupt.LcdStat) != 0)
-        {
-            return Interrupt.LcdStat;
-        }
-
-        if ((requested & (byte)Interrupt.Timer) != 0)
-        {
-            return Interrupt.Timer;
-        }
-
-        if ((requested & (byte)Interrupt.Serial) != 0)
-        {
-            return Interrupt.Serial;
-        }
-
-        if ((requested & (byte)Interrupt.Joypad) != 0)
-        {
-            return Interrupt.Joypad;
-        }
-
-        Debug.Assert(true, "Unexpected interrupt state");
-        return null;
-    }
-
-    public void RequestInterrupt(Interrupt interrupt)
-    {
-        _ioBus.RequestInterrupt(interrupt);
-    }
-
-    public void ClearInterrupt(Interrupt interrupt)
-    {
-        _ioBus.ClearInterrupt(interrupt);
     }
 }

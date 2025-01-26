@@ -1,3 +1,5 @@
+using GameboyEmu.Logic.Extensions;
+
 namespace GameboyEmu.Cpu;
 
 using Logic.Cpu.Extensions;
@@ -10,23 +12,23 @@ public partial class Cpu
     {
         if (state)
         {
-            _addressBus.SetInterruptMasterEnableFlag = true;
+            _interruptsController.SetInterruptMasterEnabledFlag = true;
         }
         else
         {
-            _addressBus.InterruptMasterEnabledFlag = state;
+            _interruptsController.InterruptMasterEnabledFlag = state;
         }
     }
     
     public void SetInterruptMasterFlagImmediate(bool state)
     {
-        _addressBus.InterruptMasterEnabledFlag = state;
+        _interruptsController.InterruptMasterEnabledFlag = state;
     }
     
     
     public bool HandleInterrupts()
     {
-        var req = _addressBus.GetRequestedInterrupt();
+        var req = _interruptsController.GetRequestedInterrupt();
         if (req is not {} interrupt)
         {
             return false;
@@ -34,11 +36,14 @@ public partial class Cpu
 
         if (!DocMode)
         {
-            _logger.LogInformation("Handling interrupt {InterruptType}", interrupt.ToString());
+            if (!interrupt.OneOf(Interrupt.VBlank))
+            {
+                _logger.LogInformation("Handling interrupt {InterruptType}", interrupt.ToString());
+            }
         }
 
-        _addressBus.ClearInterrupt(interrupt);
-        _addressBus.InterruptMasterEnabledFlag = false;
+        _interruptsController.ClearInterrupt(interrupt);
+        _interruptsController.InterruptMasterEnabledFlag = false;
         
         PushPCToStack();
         JumpToHandler(interrupt);

@@ -37,7 +37,11 @@ if (docMode && !useLogFile)
 else
 {
     logConfiguration = new LoggerConfiguration()
-        .WriteTo.File(logFile);
+        .WriteTo.Async(wt =>
+            wt.Console(
+                outputTemplate: "{Message:lj}{NewLine}{Exception}"
+            )
+        );
 }
 
 var msLogger = new SerilogLoggerProvider(logConfiguration.CreateLogger()).CreateLogger("Default");
@@ -49,21 +53,23 @@ if (rom == null)
 
 var cartridge = await new Cartridge(rom).Load();
 
+var controller = new Controller();
+var interruptsController = new InterruptsController();
 var vram = new VRam();
 var oam = new OAM(msLogger);
 var lcdControl = new LcdControl(msLogger, docMode);
+var inputControl = new InputControl(interruptsController, msLogger);
 
 var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
 var highRam = new HighRam();
-var ioBus = new IOBus(lcdControl);
-var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram, oam);
+var ioBus = new IOBus(lcdControl, inputControl, interruptsController);
+var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam);
 
 
-var gpu = new Gpu(vram, oam, lcdControl, addressBus);
+var gpu = new Gpu(vram, oam, lcdControl, interruptsController);
+var cpu = new Cpu(addressBus, interruptsController, msLogger);
 
-
-var cpu = new Cpu(addressBus, msLogger);
 if (docMode)
 {
     cpu.DocMode = true;
@@ -89,6 +95,8 @@ var cpuTask = Task.Run(() =>
     {
         try
         {
+            controller.Update(inputControl);
+            
             if (instructionDelay == 0)
             {
                 instructionDelay = cpu.Step();

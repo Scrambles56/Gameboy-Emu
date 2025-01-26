@@ -3,10 +3,20 @@
 public class Tile
 {
     public byte[] Data { get; }
+    
+    public Tile()
+    {
+        Data = new byte[64];
+    }
 
     public Tile(byte[] data)
     {
         Data = new byte[64];
+        SetData(data);
+    }
+    
+    public void SetData(byte[] data)
+    {
         for (var y = 0; y < 8; y++)
         {
             var low = data[y * 2];

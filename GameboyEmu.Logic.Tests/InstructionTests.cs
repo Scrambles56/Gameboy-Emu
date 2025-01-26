@@ -45,15 +45,17 @@ public class InstructionTests
         
         var cartridgePath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "../../../..", "roms", "gb-test-roms-master", "cpu_instrs", "cpu_instrs.gb"));
         var cartridge = new Cartridge.Cartridge(cartridgePath).Load().GetAwaiter().GetResult();
+        var interruptsController = new InterruptsController();
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);
         var upperWorkram = new WorkRAM(0xD000);
         var oam = new OAM(logger);
         var highRam = new HighRam();
         var lcdControl = new LcdControl(logger, false);
-        var ioBus = new IOBus(lcdControl);
-        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, vram, oam);
-        Cpu = new(addressBus, logger);
+        var inputControl = new InputControl(interruptsController, logger);
+        var ioBus = new IOBus(lcdControl, inputControl, interruptsController);
+        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam);
+        Cpu = new(addressBus, interruptsController, logger);
     }
 
     [Theory]
