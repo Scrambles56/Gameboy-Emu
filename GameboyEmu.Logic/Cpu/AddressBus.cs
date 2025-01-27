@@ -58,7 +58,7 @@ public class AddressBus
 
             if (address.IsBetween(0x8000, 0x9FFF))
             {
-                return _vram.ReadByte(address);
+                return _vram.ReadByte(address, AccessSource.Cpu);
             }
 
             if (address.IsBetween(0xA000, 0xBFFF))
@@ -83,7 +83,7 @@ public class AddressBus
 
             if (address.IsBetween(0xFE00, 0xFE9F))
             {
-                return _oam.ReadByte(address);
+                return _oam.ReadByte(address, AccessSource.Cpu);
             }
 
             if (address.IsBetween(0xFF00, 0xFF7F))
@@ -122,7 +122,7 @@ public class AddressBus
 
             if (address.IsBetween(0x8000, 0x9FFF))
             {
-                _vram.WriteByte(address, value);
+                _vram.WriteByte(address, value, AccessSource.Cpu);
                 return;
             }
 
@@ -151,7 +151,7 @@ public class AddressBus
 
             if (address.IsBetween(0xFE00, 0xFE9F))
             {
-                _oam.WriteByte(address, value);
+                _oam.WriteByte(address, value, AccessSource.Cpu);
                 return;
             }
             
@@ -163,6 +163,12 @@ public class AddressBus
 
             if (address.IsBetween(0xFF00, 0xFF7F))
             {
+                if (address == 0xFF46)
+                {
+                    PerformDmaTransfer(value);
+                    return;
+                }
+                
                 _ioBus.WriteByte(address, value);
                 return;
             }
@@ -185,6 +191,16 @@ public class AddressBus
         {
             Debugger.Break();
             throw;
+        }
+    }
+    
+    private void PerformDmaTransfer(byte value)
+    {
+        var startAddress = (ushort)(value << 8);
+        for (var i = 0; i < 0xA0; i++)
+        {
+            var byteValue = ReadByte((ushort)(startAddress + i));
+            _oam.WriteByte((ushort)(0xFE00 + i), byteValue, AccessSource.Cpu);
         }
     }
 }

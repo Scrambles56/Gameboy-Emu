@@ -51,12 +51,12 @@ if (rom == null)
     return 2;
 }
 
-var cartridge = await new Cartridge(rom).Load();
+var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
 
 var controller = new Controller();
 var interruptsController = new InterruptsController();
 var vram = new VRam();
-var oam = new OAM(msLogger);
+var oam = new OAM();
 var lcdControl = new LcdControl(msLogger, docMode);
 var inputControl = new InputControl(interruptsController, msLogger);
 

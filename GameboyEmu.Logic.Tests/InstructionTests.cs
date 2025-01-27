@@ -49,7 +49,7 @@ public class InstructionTests
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);
         var upperWorkram = new WorkRAM(0xD000);
-        var oam = new OAM(logger);
+        var oam = new OAM();
         var highRam = new HighRam();
         var lcdControl = new LcdControl(logger, false);
         var inputControl = new InputControl(interruptsController, logger);

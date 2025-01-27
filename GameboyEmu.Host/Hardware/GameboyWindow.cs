@@ -12,15 +12,23 @@ public static class GameboyWindow
     
     private const int TileDataWidth = 16 * 8;
     private const int TileDataHeight = 24 * 8;
-    // private const int TileDataWidth = 1 * 8;
-    // private const int TileDataHeight = 1 * 8;
+    
+    private const int OamDataWidth = 5 * 8;
+    private const int OamDataHeight = 8 * 8;
 
     private const bool ShowTileData = false;
+    private const bool ShowOamData = true;
     
     public static void Open(Cpu.Cpu cpu, Gpu gpu, CancellationToken token)
     {
-        var width = ScreenWidth * Scaling + (ShowTileData ? TileDataWidth * Scaling : 0);
-        var height = Math.Max(ScreenHeight * Scaling, ShowTileData ? TileDataHeight * Scaling : 0);
+        var width = ScreenWidth * Scaling 
+                    + (ShowTileData ? TileDataWidth * Scaling : 0)
+                    + (ShowOamData ? OamDataWidth * Scaling : 0);
+        var height = MathHelpers.Maximum(
+            ScreenHeight * Scaling, 
+            ShowTileData ? TileDataHeight * Scaling : 0,
+            ShowOamData ? OamDataHeight * Scaling : 0
+        );
         Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
         Raylib.InitWindow(width, height, GetTitle(cpu));
         
@@ -36,7 +44,15 @@ public static class GameboyWindow
             DrawScreen(gpu, new Vector2(0,0));
             if (ShowTileData)
             {
-                DrawTileData(gpu, new Vector2(-160 * Scaling, 0));
+                DrawTileData(gpu, new Vector2(-ScreenWidth * Scaling, 0));
+            }
+            
+            if (ShowOamData)
+            {
+                var tileDataWidth = ShowTileData ? TileDataWidth : 0;
+                var position = new Vector2(-ScreenWidth * Scaling - tileDataWidth, 0);
+                
+                DrawOamData(gpu, position);
             }
 
             Raylib.EndDrawing();
@@ -83,6 +99,32 @@ public static class GameboyWindow
         Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
     }
     
+    private static void DrawOamData(Gpu gpu, Vector2 position)
+    {
+        var oamData = gpu.GetOamData().ToArray();
+        var oamWidth = 8;
+        var oamHeight = 8;
+        var oamCount = 40;
+        
+        var pixelBuffer = new byte[oamWidth * oamHeight * oamCount];
+        for (var i = 0; i < pixelBuffer.Length; i++)
+        {
+            var oamIndex = i / (oamWidth * oamHeight);
+            var oam = oamData[oamIndex];
+            var x = i % oamWidth;
+            var y = i / oamWidth % oamHeight;
+            
+            var pixel = oam.GetPixel(x, y);
+            pixelBuffer[i] = pixel;
+        }
+        
+        var texture = MakeTextureForBuffer(pixelBuffer, OamDataWidth, OamDataHeight);
+        
+        var srcRec = new Rectangle(0, 0, texture.Width, texture.Height);
+        var dstRec = new Rectangle(0, 0, OamDataWidth * Scaling, OamDataHeight * Scaling);
+        Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
+    }
+    
     private static unsafe Texture2D MakeTextureForBuffer(byte[] pixelBuffer, int width, int height)
     {
         var colors = (Color *)Raylib.MemAlloc((uint)(width * height * sizeof(Color)));
@@ -113,4 +155,12 @@ public static class GameboyWindow
         [170] = new Color(48,98,48, 255),
         [255] = new Color(15,56,15, 255)
     };
+}
+
+public static class MathHelpers
+{
+    public static T Maximum<T>(params T[] args) where T : IComparable<T>
+    {
+        return args.Max()!;
+    }
 }

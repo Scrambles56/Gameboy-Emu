@@ -79,6 +79,7 @@ public class InputControl(
     }
     
     public void WriteByte(ushort address, byte value)
+    
     {
         Debug.Assert(address == 0xFF00, "Invalid address for InputControl");
         

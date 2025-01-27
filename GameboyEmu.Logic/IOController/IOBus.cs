@@ -19,17 +19,17 @@ public class IOBus(
         {
             return inputControl.ReadByte(address);
         }
-        
+
         if (address == 0xFF0F)
         {
             return interruptsController.ReadByte(address);
         }
-        
+
         if (address.IsBetween(0xFF40, 0xFF4B))
         {
             return lcdControl.ReadByte(address);
         }
-        
+
         return _data[address - _lowerBound];
     }
 
@@ -46,17 +46,16 @@ public class IOBus(
             interruptsController.WriteByte(address, value);
             return;
         }
-        
+
         if (address.IsBetween(0xFF40, 0xFF4B))
         {
             lcdControl.WriteByte(address, value);
             return;
         }
-        
-        
+
+
         _data[address - _lowerBound] = value;
     }
-    
 }
 
 public enum Interrupt

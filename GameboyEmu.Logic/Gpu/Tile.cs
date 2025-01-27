@@ -28,7 +28,7 @@ public class Tile
                 var lowBit = (low >> bit) & 1;
                 var highBit = (high >> bit) & 1;
                 var index = y * 8 + x;
-                Data[index] = (byte)((lowBit << 1) | highBit);
+                Data[index] = (byte)((highBit << 1) | lowBit);
             }
         }
     }
