@@ -67,8 +67,7 @@ public class Gpu(
             // Pixel transfer time
             DrawBgPx(pxX, pxY);
             DrawOamPx(pxX, pxY); 
-            
-            
+
             PxCounter++;
         }
         else
@@ -150,7 +149,10 @@ public class Gpu(
             var oamX = oam.ReadByte((ushort)(oamTileBase + 1), AccessSource.Gpu);
             var oamY = oam.ReadByte((ushort)(oamTileBase), AccessSource.Gpu);
             
-            if (oamX == x && oamY == y)
+            var pxToTileX = x / 8;
+            var pxToTileY = y / 8;
+            
+            if (oamX == pxToTileX && oamY == pxToTileY)
             {
                 var tileId = oam.ReadByte((ushort)(oamTileBase + 2), AccessSource.Gpu);
                 

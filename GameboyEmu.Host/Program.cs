@@ -88,6 +88,14 @@ if (shouldPrintTable)
 var ctSource = new CancellationTokenSource();
 var token = ctSource.Token;
 
+var inputTask = Task.Run(() =>
+{
+    while (!token.IsCancellationRequested)
+    {
+        controller.Update(inputControl);
+    }
+});
+
 var cpuTask = Task.Run(() =>
 {
     var instructionDelay = 0;
@@ -95,8 +103,6 @@ var cpuTask = Task.Run(() =>
     {
         try
         {
-            controller.Update(inputControl);
-            
             if (instructionDelay == 0)
             {
                 instructionDelay = cpu.Step();
@@ -122,5 +128,5 @@ var cpuTask = Task.Run(() =>
 GameboyWindow.Open(cpu, gpu, token);
 
 ctSource.Cancel();
-await cpuTask;
+await Task.WhenAny(cpuTask, inputTask);
 return 1;

@@ -9,7 +9,7 @@ public class InputControl(
     ILogger logger
 )
 {
-    private byte _inputState;
+    private byte _inputState = 0b0011_0000;
     
     private Dictionary<GbButton, bool> _buttonStates = new()
     {
@@ -25,14 +25,7 @@ public class InputControl(
 
     public void PressButton(GbButton button)
     {
-        var previousState = _buttonStates[button];
         _buttonStates[button] = true;
-        
-        if (!previousState)
-        {
-            logger.LogInformation("Button {button} pressed", button);
-            interruptsController.RequestInterrupt(Interrupt.Joypad);
-        }
     }
     
     public void ReleaseButton(GbButton button)
@@ -43,11 +36,35 @@ public class InputControl(
     public byte ReadByte(ushort address)
     {
         Debug.Assert(address == 0xFF00, "Invalid address for InputControl");
-
-        var isDpadSelect = _inputState.IsBitSet(4);
-        var isButtonSelect = _inputState.IsBitSet(5);
+        byte result = 0x3F;
         
-        var result = GetInputState(isDpadSelect, isButtonSelect);
+        var isDpadSelect = !_inputState.IsBitSet(4);
+        var isButtonSelect = !_inputState.IsBitSet(5);
+
+        if (isDpadSelect)
+        {
+            result = _buttonStates[GbButton.Down] ? result.ClearBit(3) : result;
+            result = _buttonStates[GbButton.Up] ? result.ClearBit(2) : result;
+            result = _buttonStates[GbButton.Left] ? result.ClearBit(1) : result;
+            result = _buttonStates[GbButton.Right] ? result.ClearBit(0) : result;
+        }
+        
+        if (isButtonSelect)
+        {
+            result = _buttonStates[GbButton.Start] ? result.ClearBit(3) : result;
+            result = _buttonStates[GbButton.Select] ? result.ClearBit(2) : result;
+            result = _buttonStates[GbButton.B] ? result.ClearBit(1) : result;
+            result = _buttonStates[GbButton.A] ? result.ClearBit(0) : result;
+        }
+        
+        result = isDpadSelect ? result.ClearBit(4) : result;
+        result = isButtonSelect ? result.ClearBit(5) : result;
+        
+        if (_buttonStates.Any(b => b.Value))
+        {
+            var buttons = string.Join(", ", _buttonStates.Where(b => b.Value).Select(b => b.Key.ToString()));
+            logger.LogInformation("PressedButtons: {Buttons}, Result: {Result}", buttons, ((byte)result).ToBinaryString());
+        }
 
         return result;
     }
@@ -79,23 +96,10 @@ public class InputControl(
     }
     
     public void WriteByte(ushort address, byte value)
-    
     {
         Debug.Assert(address == 0xFF00, "Invalid address for InputControl");
         
-        // Check if any falling edges
-        var getNextInputState = GetInputState(
-            value.IsBitSet(4),
-            value.IsBitSet(5)
-        );
-        var fallingEdges = _inputState & ~getNextInputState;
-        
-        _inputState = value;
-        
-        if (fallingEdges != 0)
-        {
-            interruptsController.RequestInterrupt(Interrupt.Joypad);
-        }
+        _inputState = (byte)(value & 0b0011_0000);
     }
 }
 
