@@ -16,7 +16,7 @@ public static class GameboyWindow
     private const int OamDataWidth = 5 * 8;
     private const int OamDataHeight = 8 * 8;
 
-    private const bool ShowTileData = false;
+    private const bool ShowTileData = true;
     private const bool ShowOamData = true;
     
     public static void Open(Cpu.Cpu cpu, Gpu gpu, CancellationToken token)
@@ -49,7 +49,7 @@ public static class GameboyWindow
             
             if (ShowOamData)
             {
-                var tileDataWidth = ShowTileData ? TileDataWidth : 0;
+                var tileDataWidth = ShowTileData ? TileDataWidth * Scaling : 0;
                 var position = new Vector2(-ScreenWidth * Scaling - tileDataWidth, 0);
                 
                 DrawOamData(gpu, position);
