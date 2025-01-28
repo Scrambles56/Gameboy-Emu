@@ -95,6 +95,11 @@ public class AddressBus
             {
                 return _ioBus.ReadByte(address);
             }
+            
+            if (address.IsBetween(0xFEA0, 0xFEFF))
+            {
+                throw new InvalidOperationException("Reading from Unusable Memory");
+            }
 
             if (address.IsBetween(0xFF80, 0xFFFE))
             {
@@ -162,7 +167,7 @@ public class AddressBus
             
             if (address.IsBetween(0xFEA0, 0xFEFF))
             {
-                // Console.WriteLine("Attempting write to Unusable Memory");
+                _logger.LogWarning("Writing to Unusable Memory, Address: {Address:X4}, Value: {Value:X2}", address, value);
                 return;
             }
 
@@ -170,7 +175,6 @@ public class AddressBus
             {
                 if (address == 0xFF46)
                 {
-                    _logger.LogInformation("Performing DMA Transfer, Value: {Value:X2}", value);
                     PerformDmaTransfer(value);
                     return;
                 }
@@ -206,7 +210,8 @@ public class AddressBus
         for (var i = 0; i < 0xA0; i++)
         {
             var byteValue = ReadByte((ushort)(startAddress + i));
-            _oam.WriteByte((ushort)(0xFE00 + i), byteValue, AccessSource.Cpu);
+            var address = (ushort)(0xFE00 + i);
+            _oam.WriteByte(address, byteValue, AccessSource.Cpu);
         }
     }
 }

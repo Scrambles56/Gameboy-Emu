@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using GameboyEmu.Logic.Extensions;
 using GameboyEmu.Logic.Gpu;
 using Raylib_cs;
 
@@ -13,8 +14,8 @@ public static class GameboyWindow
     private const int TileDataWidth = 16 * 8;
     private const int TileDataHeight = 24 * 8;
     
-    private const int OamDataWidth = 5 * 8;
-    private const int OamDataHeight = 8 * 8;
+    private const int OamDataWidth = 500;
+    private const int OamDataHeight = 500;
 
     private const bool ShowTileData = true;
     private const bool ShowOamData = true;
@@ -23,11 +24,11 @@ public static class GameboyWindow
     {
         var width = ScreenWidth * Scaling 
                     + (ShowTileData ? TileDataWidth * Scaling : 0)
-                    + (ShowOamData ? OamDataWidth * Scaling : 0);
+                    + (ShowOamData ? OamDataWidth  : 0);
         var height = MathHelpers.Maximum(
             ScreenHeight * Scaling, 
             ShowTileData ? TileDataHeight * Scaling : 0,
-            ShowOamData ? OamDataHeight * Scaling : 0
+            ShowOamData ? OamDataHeight : 0
         );
         Raylib.SetTraceLogLevel(TraceLogLevel.Warning);
         Raylib.InitWindow(width, height, GetTitle(cpu));
@@ -99,27 +100,20 @@ public static class GameboyWindow
     private static void DrawOamData(Gpu gpu, Vector2 position)
     {
         var oamData = gpu.GetOamData().ToArray();
-        var oamWidth = 8;
-        var oamHeight = 8;
-        var oamCount = 40;
         
-        var pixelBuffer = new byte[oamWidth * oamHeight * oamCount];
-        for (var i = 0; i < pixelBuffer.Length; i++)
+        for (var i = 0; i < oamData.Length; i++)
         {
-            var oamIndex = i / (oamWidth * oamHeight);
-            var oam = oamData[oamIndex];
-            var x = i % oamWidth;
-            var y = i / oamWidth % oamHeight;
+            var oam = oamData[i];
             
-            var pixel = oam.GetPixel(x, y);
-            pixelBuffer[i] = pixel;
+            var oamString = GetOamDataString(i, oam);
+            // Console.WriteLine(oamString);
+            
+            Raylib.DrawText(oamString, (int)-position.X + 2, (int)(position.Y + i * 12), 10, Color.White);
         }
         
-        var texture = MakeTextureForBuffer(pixelBuffer, OamDataWidth, OamDataHeight);
+        // Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
         
-        var srcRec = new Rectangle(0, 0, texture.Width, texture.Height);
-        var dstRec = new Rectangle(0, 0, OamDataWidth * Scaling, OamDataHeight * Scaling);
-        Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
+        string GetOamDataString(int index, Gpu.OamDataTile oam) => $"[i]: {index}, X: {oam.X}, Y: {oam.Y}, TileId: {oam.TileId}, Flags: {oam.Flags.ToBinaryString()}";
     }
     
     private static unsafe Texture2D MakeTextureForBuffer(byte[] pixelBuffer, int width, int height)

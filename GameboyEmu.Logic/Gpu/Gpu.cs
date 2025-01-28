@@ -17,6 +17,8 @@ public class Gpu(
 
     private const int ScreenWidth = 160;
     private const int ScreenHeight = 144;
+    
+    private const bool DrawGrid = false;
 
     public byte[] FrameBuffer { get; } = new byte[ScreenWidth * ScreenHeight];
 
@@ -83,25 +85,52 @@ public class Gpu(
         TickCount++;
     }
 
-    public IEnumerable<Tile> GetOamData()
+    public class OamDataTile
     {
-        var oamData = new List<Tile>();
+        public byte Y { get; private set; }
+        public byte X { get; private set; }
+        public byte TileId { get; private set; }
+        public byte Flags { get; private set; }
+        
+        public void SetData(byte y, byte x, byte tileId, byte flags)
+        {
+            Y = y;
+            X = x;
+            TileId = tileId;
+            Flags = flags;
+        }
+        
+        public void SetDataFromVRam(ushort oamTileBase, VRam vram)
+        {
+            Y = vram.ReadByte(oamTileBase, AccessSource.Gpu);
+            X = vram.ReadByte((ushort)(oamTileBase + 1), AccessSource.Gpu);
+            TileId = vram.ReadByte((ushort)(oamTileBase + 2), AccessSource.Gpu);
+            Flags = vram.ReadByte((ushort)(oamTileBase + 3), AccessSource.Gpu);
+        }
+    };
+
+    private static readonly OamDataTile[] OamDataTiles = new OamDataTile[40];
+    public IEnumerable<OamDataTile> GetOamData()
+    {
         for (var i = 0; i < 40; i++)
         {
             var oamTileBase = (ushort)(0xFE00 + i * 4);
-
+            
+            var y = oam.ReadByte(oamTileBase, AccessSource.Gpu);
+            var x = oam.ReadByte((ushort)(oamTileBase + 1), AccessSource.Gpu);
             var tileId = oam.ReadByte((ushort)(oamTileBase + 2), AccessSource.Gpu);
-
-            var tileData = new byte[16];
-            for (var j = 0; j < 16; j++)
-            {
-                tileData[j] = vram.ReadByte((ushort)(0x8000 + tileId * 16 + j), AccessSource.Gpu);
-            }
-
-            oamData.Add(new Tile(tileData));
+            var flags = oam.ReadByte((ushort)(oamTileBase + 3), AccessSource.Gpu);
+            
+            SetOamData(i, y, x, tileId, flags);
         }
 
-        return oamData;
+        return OamDataTiles;
+        
+        void SetOamData(int idx, byte y, byte x, byte tileId, byte flags)
+        {
+            OamDataTiles[idx] ??= new OamDataTile();
+            OamDataTiles[idx].SetData(y, x, tileId, flags);
+        }
     }
 
     private static readonly Tile[] TileDataTiles = new Tile[384];
@@ -140,6 +169,11 @@ public class Gpu(
         // Next we need to find the tile number
         var tileId = vram.ReadByte((ushort)(0x9800 + tileY * 32 + tileX), AccessSource.Gpu);
 
+        return GetTile(tileId);
+    }
+
+    private Tile GetTile(byte tileId)
+    {
         for (var i = 0; i < 16; i++)
         {
             _bgTileData[i] = vram.ReadByte((ushort)(0x8000 + tileId * 16 + i), AccessSource.Gpu);
@@ -149,31 +183,35 @@ public class Gpu(
         return _bgTile;
     }
 
+    private static readonly OamDataTile OamData = new();
     public Tile? GetOamTile(int x, int y)
     {
         for (var oamIndex = 0; oamIndex < 40; oamIndex++)
-        {
+        {   
             var oamTileBase = (ushort)(0xFE00 + oamIndex * 4);
-
-            var oamX = oam.ReadByte((ushort)(oamTileBase + 1), AccessSource.Gpu);
-            var oamY = oam.ReadByte((ushort)(oamTileBase), AccessSource.Gpu);
-
-            var pxToTileX = x / 8;
-            var pxToTileY = y / 8;
-
-            if (oamX + 8 == pxToTileX && oamY + 16 == pxToTileY)
+            
+            OamData.SetData(
+                oam.ReadByte(oamTileBase, AccessSource.Gpu), 
+                oam.ReadByte((ushort)(oamTileBase + 1), AccessSource.Gpu), 
+                oam.ReadByte((ushort)(oamTileBase + 2), AccessSource.Gpu), 
+                oam.ReadByte((ushort)(oamTileBase + 3), AccessSource.Gpu)
+            );
+            
+            if (OamData.Y == 0 || OamData.X == 0)
             {
-                var tileId = oam.ReadByte((ushort)(oamTileBase + 2), AccessSource.Gpu);
+                continue;
+            }
+            
+            var pxXToOam = x / 8 * 8;
+            var pxYToOam = y / 8 * 8;
 
-                var tileData = new byte[16];
-                for (var dataIndex = 0; dataIndex < 16; dataIndex++)
-                {
-                    tileData[dataIndex] = vram.ReadByte((ushort)(0x8000 + tileId * 16 + dataIndex), AccessSource.Gpu);
-                }
-
-                _bgTile.SetData(tileData);
-
-                return _bgTile;
+            const int oamXOffset = 8;
+            const int oamYOffset = 16;
+            
+            
+            if (pxXToOam == OamData.X - oamXOffset && pxYToOam == OamData.Y - oamYOffset)
+            {
+                return GetTile(OamData.TileId);
             }
         }
 
@@ -189,8 +227,15 @@ public class Gpu(
         var nY = (y + scy) % 256;
 
         var tile = GetBgTile(nX, nY);
+        
+        var px = tile.GetPixel(nX % 8, nY % 8);
+        
+        if (DrawGrid && (nX % 8 == 0 || nY % 8 == 0))
+        {
+            px = 0xFF;
+        }
 
-        FrameBuffer[x + y * ScreenWidth] = tile.GetPixel(nX % 8, nY % 8);
+        FrameBuffer[x + y * ScreenWidth] = px;
     }
 
     private void DrawOamPx(int x, int y)
@@ -199,7 +244,7 @@ public class Gpu(
 
         if (tile is not null)
         {
-            var color = (byte)33; // tile.GetPixel(x % 8, y % 8);
+            var color = tile.GetPixel(x % 8, y % 8);
             if (color != 0)
             {
                 FrameBuffer[x + y * ScreenWidth] = color;
