@@ -57,10 +57,10 @@ public class Tile
 
         return value switch
         {
-            0 => 0,
-            1 => 85,
-            2 => 170,
-            3 => 255,
+            0 => 0x00,
+            1 => 0x55,
+            2 => 0xAA,
+            3 => 0xFF,
             _ => throw new InvalidOperationException()
         };
     }
@@ -68,8 +68,7 @@ public class Tile
     public bool IsEmpty => Data.All(b => b == 0);
 
 
-    public static Tile TestTile { get; } = new(new byte[]
-    {
+    public static Tile TestTile { get; } = new([
         0xFF,
         0x81,
         0x81,
@@ -86,5 +85,5 @@ public class Tile
         0x81,
         0x81,
         0xFF
-    });
+    ]);
 }

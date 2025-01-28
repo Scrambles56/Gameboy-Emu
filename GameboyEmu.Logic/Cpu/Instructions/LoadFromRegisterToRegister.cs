@@ -64,7 +64,9 @@ public static class LoadInstructions
             "LD HL,SP+e8",
             12,
             InstructionSize.D8,
-            action: (_, cpu, data) =>
+            RegisterType.None,
+            RegisterType.None,
+            action: (instruction, cpu, data) =>
             {
                 var sp = cpu.SP;
                 var e8 = data.ToByte();
@@ -75,6 +77,8 @@ public static class LoadInstructions
                 cpu.F.SubtractFlag = false;
                 cpu.F.HalfCarryFlag = (sp & 0x0F) + (e8 & 0x0F) > 0xF;
                 cpu.F.CarryFlag = (sp & 0xFF) + e8 > 0xFF;
+                
+                return instruction.Cycles;
             }
         ),
         
@@ -96,6 +100,8 @@ public static class LoadInstructions
             "LD (a16),SP",
             20,
             InstructionSize.D16,
+            RegisterType.None,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var sp = cpu.SP;
@@ -103,6 +109,8 @@ public static class LoadInstructions
                 
                 cpu.WriteByte(data.ToUshort(), low);
                 cpu.WriteByte((ushort)(data.ToUshort() + 1), high);
+                
+                return instruction.Cycles;
             }
         ),
         
@@ -136,10 +144,13 @@ public static class LoadInstructions
             12,
             InstructionSize.D8,
             RegisterType.A,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByteRegister(instruction.Register1);
                 cpu.WriteByte((ushort)(0xFF00 + data.ToByte()), regValue);
+                
+                return instruction.Cycles;
             }
         ),
         new GenericInstruction(
@@ -148,10 +159,13 @@ public static class LoadInstructions
             16,
             InstructionSize.D16,
             RegisterType.A,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByteRegister(instruction.Register1);
                 cpu.WriteByte(data.ToUshort(), regValue);
+                
+                return instruction.Cycles;
             }
         ),
         new GenericInstruction(
@@ -160,10 +174,13 @@ public static class LoadInstructions
             12,
             InstructionSize.D8,
             RegisterType.A,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByte((ushort)(0xFF00 + data.ToByte()));
                 cpu.WriteByteRegister(instruction.Register1, regValue);
+                
+                return instruction.Cycles;
             }
         ),
         new GenericInstruction(
@@ -172,10 +189,13 @@ public static class LoadInstructions
             16,
             InstructionSize.D16,
             RegisterType.A,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByte(data.ToUshort());
                 cpu.WriteByteRegister(instruction.Register1, regValue);
+                
+                return instruction.Cycles;
             }
         ),
         
@@ -183,20 +203,30 @@ public static class LoadInstructions
             0xE2,
             "LD (C),A",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByteRegister(RegisterType.A);
                 cpu.WriteByte((ushort)(0xFF00 + cpu.ReadByteRegister(RegisterType.C)), regValue);
+                
+                return instruction.Cycles;
             }
         ),
         new GenericInstruction(
             0xF2,
             "LD A,(C)",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var regValue = cpu.ReadByte((ushort)(0xFF00 + cpu.ReadByteRegister(RegisterType.C)));
                 cpu.WriteByteRegister(RegisterType.A, regValue);
+                
+                return instruction.Cycles;
             }
         ),
         
@@ -204,30 +234,43 @@ public static class LoadInstructions
             0x32,
             "LD (HL-),A",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instr, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
                 cpu.WriteByte(hl, cpu.A);
                 hl--;
                 cpu.WriteUshortRegister(RegisterType.HL, hl);
+                
+                return instr.Cycles;
             }
         ),
         new GenericInstruction(
             0x22,
             "LD (HL+),A",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instr, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
                 cpu.WriteByte(hl, cpu.A);
                 hl++;
                 cpu.WriteUshortRegister(RegisterType.HL, hl);
+                
+                return instr.Cycles;
             }
         ),
         new GenericInstruction(
             0x2A,
             "LD A,(HL+)",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instr, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
@@ -235,12 +278,17 @@ public static class LoadInstructions
                 cpu.WriteByteRegister(RegisterType.A, value);
                 hl++;
                 cpu.WriteUshortRegister(RegisterType.HL, hl);
+                
+                return instr.Cycles;
             }
         ),
         new GenericInstruction(
             0x3A,
             "LD A,(HL-)",
             8,
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
             action: (instr, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
@@ -248,6 +296,8 @@ public static class LoadInstructions
                 cpu.WriteByteRegister(RegisterType.A, value);
                 hl--;
                 cpu.WriteUshortRegister(RegisterType.HL, hl);
+                
+                return instr.Cycles;
             }
         ),
         new GenericInstruction(
@@ -255,10 +305,14 @@ public static class LoadInstructions
             "LD (HL),d8",
             12,
             InstructionSize.D8,
+            RegisterType.None,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var hl = cpu.ReadUshortRegister(RegisterType.HL);
                 cpu.WriteByte(hl, data.ToByte());
+                
+                return instruction.Cycles;
             }
         )
     };
@@ -276,10 +330,12 @@ public class LoadFromRegisterToRegister : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regVal = cpu.ReadByteRegister(Register2);
         cpu.WriteByteRegister(Register1, regVal);
+        
+        return Cycles;
     }
 }
 
@@ -291,9 +347,11 @@ public class LoadFromRegister16ToRegister16(
     RegisterType register2 = RegisterType.None
 ) : Instruction(opcode, mnemonic, cycles, InstructionSize.None, register1, register2)
 {
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regVal = cpu.ReadUshortRegister(Register2);
         cpu.WriteUshortRegister(Register1, regVal);
+        
+        return Cycles;
     }
 }

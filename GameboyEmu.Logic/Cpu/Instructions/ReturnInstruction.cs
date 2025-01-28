@@ -4,40 +4,19 @@ public static class ReturnInstructions
 {
     public static List<Instruction> Instructions => new()
     {
-        new ReturnInstruction(
-            0xC9,
-            "RET",
-            16
-        ),
-        new ReturnInstruction(
-            0xC0,
-            "RET NZ",
-            20,
-            Condition.NZ
-        ),
-        new ReturnInstruction(
-            0xC8,
-            "RET Z",
-            20,
-            Condition.Z
-        ),
-        new ReturnInstruction(
-            0xD0,
-            "RET NC",
-            20,
-            Condition.NC
-        ),
-        new ReturnInstruction(
-            0xD8,
-            "RET C",
-            20,
-            Condition.C
-        ),
+        new ReturnInstruction(0xC9, "RET", 16),
+        new ReturnInstruction(0xC0, "RET NZ", 20, Condition.NZ),
+        new ReturnInstruction(0xC8, "RET Z", 20, Condition.Z),
+        new ReturnInstruction(0xD0, "RET NC", 20, Condition.NC),
+        new ReturnInstruction(0xD8, "RET C", 20, Condition.C),
         new GenericInstruction(
             0xD9,
             "RETI",
             16,
-            action: (_, cpu, _) =>
+            InstructionSize.None,
+            RegisterType.None,
+            RegisterType.None,
+            action: (instruction, cpu, _) =>
             {
                 cpu.SetInterruptMasterFlagImmediate(true);
                 var low = cpu.ReadByte(cpu.SP);
@@ -45,6 +24,8 @@ public static class ReturnInstructions
                 var high = cpu.ReadByte(cpu.SP);
                 cpu.SP++;
                 cpu.PC.SetValue((ushort)((high << 8) | low));
+                
+                return instruction.Cycles;
             }    
         )
     };
@@ -65,7 +46,7 @@ public class ReturnInstruction : Instruction
         _condition = condition;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         if (cpu.CheckCondition(_condition))
         {
@@ -74,6 +55,10 @@ public class ReturnInstruction : Instruction
             var high = cpu.ReadByte(cpu.SP);
             cpu.SP++;
             cpu.PC.SetValue((ushort)((high << 8) | low));
+            
+            return Cycles;
         }
+        
+        return 8;
     }
 }

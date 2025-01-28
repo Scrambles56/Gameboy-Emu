@@ -11,7 +11,8 @@ public class NoopInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
+        return Cycles;
     }
 }

@@ -61,14 +61,14 @@ public static class CheckBitInstructions
         new CheckRegisterBitInstruction(0x7D, "BIT 7, L", 8, RegisterType.L, 7),
         new CheckRegisterBitInstruction(0x7F, "BIT 7, A", 8, RegisterType.A, 7),
         
-        new CheckAddressBitInstruction(0x46, "BIT 0, (HL)", 16, RegisterType.HL, 0),
-        new CheckAddressBitInstruction(0x4E, "BIT 1, (HL)", 16, RegisterType.HL, 1),
-        new CheckAddressBitInstruction(0x56, "BIT 2, (HL)", 16, RegisterType.HL, 2),
-        new CheckAddressBitInstruction(0x5E, "BIT 3, (HL)", 16, RegisterType.HL, 3),
-        new CheckAddressBitInstruction(0x66, "BIT 4, (HL)", 16, RegisterType.HL, 4),
-        new CheckAddressBitInstruction(0x6E, "BIT 5, (HL)", 16, RegisterType.HL, 5),
-        new CheckAddressBitInstruction(0x76, "BIT 6, (HL)", 16, RegisterType.HL, 6),
-        new CheckAddressBitInstruction(0x7E, "BIT 7, (HL)", 16, RegisterType.HL, 7)
+        new CheckAddressBitInstruction(0x46, "BIT 0, (HL)", 12, RegisterType.HL, 0),
+        new CheckAddressBitInstruction(0x4E, "BIT 1, (HL)", 12, RegisterType.HL, 1),
+        new CheckAddressBitInstruction(0x56, "BIT 2, (HL)", 12, RegisterType.HL, 2),
+        new CheckAddressBitInstruction(0x5E, "BIT 3, (HL)", 12, RegisterType.HL, 3),
+        new CheckAddressBitInstruction(0x66, "BIT 4, (HL)", 12, RegisterType.HL, 4),
+        new CheckAddressBitInstruction(0x6E, "BIT 5, (HL)", 12, RegisterType.HL, 5),
+        new CheckAddressBitInstruction(0x76, "BIT 6, (HL)", 12, RegisterType.HL, 6),
+        new CheckAddressBitInstruction(0x7E, "BIT 7, (HL)", 12, RegisterType.HL, 7)
     };
 }
 
@@ -87,7 +87,7 @@ public class CheckRegisterBitInstruction : Instruction
         _bitIndex = bitIndex;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var mask = 1 << _bitIndex;
         var value = cpu.ReadByteRegister(Register1);
@@ -96,6 +96,8 @@ public class CheckRegisterBitInstruction : Instruction
         cpu.F.ZeroFlag = result;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = true;
+        
+        return Cycles;
     }
 }
 
@@ -114,7 +116,7 @@ public class CheckAddressBitInstruction : Instruction
         _bitIndex = bitIndex;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var mask = 1 << _bitIndex;
         var address = cpu.ReadUshortRegister(Register1);
@@ -124,5 +126,7 @@ public class CheckAddressBitInstruction : Instruction
         cpu.F.ZeroFlag = result;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = true;
+        
+        return Cycles;
     }
 }

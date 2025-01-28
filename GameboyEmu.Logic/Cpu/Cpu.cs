@@ -72,14 +72,16 @@ public partial class Cpu
         }
     }
 
+    public bool Halted { get; set; }
+
     private readonly AddressBus _addressBus;
     private readonly InterruptsController _interruptsController;
     private readonly ILogger _logger;
 
     private FetchedData? FetchedData { get; set; }
 
-    public bool cbMode = false;
-    private Dictionary<string, int> _executedInstructions = new();
+    public bool CbMode = false;
+    private readonly Dictionary<string, int> _executedInstructions = new();
 
     public Cpu(
         AddressBus addressBus,
@@ -121,15 +123,20 @@ public partial class Cpu
             _interruptsController.InterruptMasterEnabledFlag = true;
             _interruptsController.SetInterruptMasterEnabledFlag = false;
         }
+        
+        if (Halted)
+        {
+            return 4;
+        }
 
-        var isCbMode = cbMode;
         var opCode = ReadNextByte();
         var instruction = GetInstruction(opCode, this);
+        int cycles = -1;
 
         if (instruction is not null)
         {
             FetchedData = instruction.FetchData(this);
-            instruction.Execute(this, FetchedData);
+            cycles = instruction.Execute(this, FetchedData);
 
             if (DocMode && instruction.Opcode != 0xCB)
             {
@@ -141,7 +148,7 @@ public partial class Cpu
         }
         else
         {
-            _logger.LogWarning("Unknown instruction: {OpCode}", $"{(cbMode ? "CB" : "")}{opCode:X2}");
+            _logger.LogWarning("Unknown instruction: {OpCode}", $"{(CbMode ? "CB" : "")}{opCode:X2}");
             Debugger.Break();
         }
 
@@ -149,7 +156,12 @@ public partial class Cpu
         LastInstruction = instruction;
         FetchedData = null;
         
-        return instruction?.Cycles ?? throw new("Instruction not found");
+        if (instruction is null || cycles == -1)
+        {
+            throw new("Instruction not found");
+        }
+        
+        return cycles;
     }
     
 

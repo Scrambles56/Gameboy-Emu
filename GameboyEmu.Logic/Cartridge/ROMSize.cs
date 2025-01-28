@@ -13,6 +13,9 @@ public class ROMSize
     
     public int Size => 32768 * (1 << _value);
 
+    public int Banks => 1 << _value;
+    public int BankSelectMask => Banks - 1;
+
     public override string ToString()
     {
         return _value switch

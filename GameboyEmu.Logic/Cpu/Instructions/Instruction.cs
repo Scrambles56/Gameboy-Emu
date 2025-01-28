@@ -60,7 +60,8 @@ public abstract class Instruction
     public RegisterType Register1 { get; }
     public RegisterType Register2 { get; }
     
-    public abstract void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data);
+    // Returns the number of cycles the instruction took
+    public abstract int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data);
     
     public virtual FetchedData FetchData(GameboyEmu.Cpu.Cpu cpu) =>
         InstructionSize switch

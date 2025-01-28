@@ -44,7 +44,7 @@ public class InstructionTests
         var logger = NullLogger.Instance;
         
         var cartridgePath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "../../../..", "roms", "gb-test-roms-master", "cpu_instrs", "cpu_instrs.gb"));
-        var cartridge = new Cartridge.Cartridge(cartridgePath).Load().GetAwaiter().GetResult();
+        var cartridge = new Cartridge.Carts.Cartridge(logger, cartridgePath).Load().GetAwaiter().GetResult();
         var interruptsController = new InterruptsController();
         var vram = new VRam();
         var lowerWorkram = new WorkRAM(0xC000);
@@ -54,7 +54,7 @@ public class InstructionTests
         var lcdControl = new LcdControl(logger, false);
         var inputControl = new InputControl(interruptsController, logger);
         var ioBus = new IOBus(lcdControl, inputControl, interruptsController);
-        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam);
+        var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam, logger);
         Cpu = new(addressBus, interruptsController, logger);
     }
 
@@ -62,7 +62,7 @@ public class InstructionTests
     [MemberData(nameof(NonCbTestCases))]
     public void InstructExistsForOpcode(TestCase testCase)
     {
-        Cpu.cbMode = false;
+        Cpu.CbMode = false;
         var opcode = testCase.OpCode;
         
         var instruction = Instructions.GetInstruction(opcode, Cpu);
@@ -73,7 +73,7 @@ public class InstructionTests
     [MemberData(nameof(CbTestCases))]
     public void CbInstructExistsForOpcode(TestCase testCase)
     {
-        Cpu.cbMode = true;
+        Cpu.CbMode = true;
         var opcode = testCase.OpCode;
         var instruction = Instructions.GetInstruction(opcode, Cpu);
         instruction.Should().NotBeNull();

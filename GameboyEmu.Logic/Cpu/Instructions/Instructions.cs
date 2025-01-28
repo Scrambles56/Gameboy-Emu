@@ -6,13 +6,13 @@ public static class Instructions
 {
     public static Instruction? GetInstruction(byte opcode, GameboyEmu.Cpu.Cpu cpu)
     {
-        if (!cpu.cbMode)
+        if (!cpu.CbMode)
         {
             return Instrs.GetValueOrDefault(opcode);
         }
 
         var instruction = CbInstructions.GetValueOrDefault(opcode);
-        cpu.cbMode = false;
+        cpu.CbMode = false;
         return instruction;
     }
 
@@ -35,62 +35,100 @@ public static class Instructions
                 0xF3,
                 "DI",
                 4,
-                action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(false); }
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
+                {
+                    cpu.SetInterruptMasterFlag(false);
+                    
+                    return instruction.Cycles;
+                }
             ),
-            // TODO: The effect of ei is delayed by one instruction. This means that ei followed immediately by di does not allow any interrupts between them
             new GenericInstruction(
                 0xFB,
                 "EI",
                 4,
-                action: (_, cpu, _) => { cpu.SetInterruptMasterFlag(true); }
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
+                {
+                    cpu.SetInterruptMasterFlag(true);
+                    
+                    return instruction.Cycles;
+                }
             ),
             new GenericInstruction(
                 0xCB,
                 "PREFIX CB",
                 4,
-                action: (_, cpu, _) =>
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
                 {
-                    cpu.cbMode = true;
+                    cpu.CbMode = true;
+                    
+                    return instruction.Cycles;
                 }
             ),
             new GenericInstruction(
                 0x2F,
                 "CPL",
                 4,
-                action: (_, cpu, _) =>
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
                 {
                     cpu.A.SetValue((byte)~cpu.A);
                     cpu.F.SubtractFlag = true;
                     cpu.F.HalfCarryFlag = true;
+                    
+                    return instruction.Cycles;
                 }
             ),
             new GenericInstruction(
                 0x3F,
                 "CCF",
                 4,
-                action: (_, cpu, _) =>
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
                 {
                     cpu.F.CarryFlag = !cpu.F.CarryFlag;
                     cpu.F.SubtractFlag = false;
                     cpu.F.HalfCarryFlag = false;
+
+                    return instruction.Cycles;
                 }
             ),
             new GenericInstruction(
                 0x37,
                 "SCF",
                 4,
-                action: (_, cpu, _) =>
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
                 {
                     cpu.F.CarryFlag = true;
                     cpu.F.SubtractFlag = false;
                     cpu.F.HalfCarryFlag = false;
+                    
+                    return instruction.Cycles;
                 }
             ),
             new GenericInstruction(
                 0x27,
                 "DAA",
                 4,
-                action: (_, cpu, _) =>
+                InstructionSize.None,
+                RegisterType.None,
+                RegisterType.None,
+                action: (instruction, cpu, _) =>
                 {
                     var adjustment = 0;
                     int result;
@@ -118,9 +156,12 @@ public static class Instructions
                     
                     cpu.F.ZeroFlag = (byte)result == 0;
                     cpu.F.HalfCarryFlag = false;
+
+                    return instruction.Cycles;
                 }
             )
         }
+        .Concat(StopInstructions.Instructions)
         .Concat(ReturnInstructions.Instructions)
         .Concat(RotateInstructions.Instructions)
         .Concat(AddInstructions.Instructions)
@@ -144,7 +185,7 @@ public static class Instructions
         {
             0xD3, 0xDB, 0xDD, 0xE3, 0xE4, 0xEB, 0xEC, 0xED, 0xF4, 0xFC, 0xFD
         };
-        var cbMode = cpu.cbMode;
+        var cbMode = cpu.CbMode;
 
         Console.WriteLine("   x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF");
         for (var i = 0; i < 16; i++)
@@ -161,7 +202,7 @@ public static class Instructions
                 }
                 
                 var instr = GetInstruction(opcode, cpu);
-                cpu.cbMode = cbMode;
+                cpu.CbMode = cbMode;
                 Console.Write(instr == null ? "  x" : "  .");
             }
 
@@ -176,7 +217,7 @@ public static class Instructions
         Console.WriteLine("CB Instructions");
 
         cbMode = true;
-        cpu.cbMode = cbMode;
+        cpu.CbMode = cbMode;
         Console.WriteLine("   x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF");
         for (var i = 0; i < 16; i++)
         {
@@ -186,7 +227,7 @@ public static class Instructions
             {
                 var opcode = (byte)(i * 16 + j);
                 var instr = GetInstruction(opcode, cpu);
-                cpu.cbMode = cbMode;
+                cpu.CbMode = cbMode;
                 Console.Write(instr == null ? "  x" : "  .");
             }
 

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using GameboyEmu.Cpu;
 using GameboyEmu.Logic.Cartridge;
+using GameboyEmu.Logic.Cartridge.Carts;
 using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Instructions;
 using GameboyEmu.Logic.Gpu;
@@ -8,6 +9,7 @@ using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
 using GameboyEmu.Windowing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using Serilog;
 using Serilog.Extensions.Logging;
@@ -51,7 +53,8 @@ if (rom == null)
     return 2;
 }
 
-var cartridge = AsyncContext.Run(async () => await new Cartridge(rom).Load());
+var cartridge = AsyncContext.Run(async () => await new Cartridge(msLogger, rom).Load());
+msLogger.LogInformation("Cartridge loaded: {Cartridge}", cartridge);
 
 var controller = new Controller();
 var interruptsController = new InterruptsController();
@@ -64,7 +67,7 @@ var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
 var highRam = new HighRam();
 var ioBus = new IOBus(lcdControl, inputControl, interruptsController);
-var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam);
+var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam, msLogger);
 
 
 var gpu = new Gpu(vram, oam, lcdControl, interruptsController);
@@ -111,9 +114,10 @@ var cpuTask = Task.Run(() =>
             gpu.Tick();
             instructionDelay--;
         }
-        catch
+        catch(Exception ex)
         {
             Debugger.Break();
+            msLogger.LogError(ex, "Error during CPU execution");
             ctSource.Cancel();
             throw;
         }

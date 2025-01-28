@@ -34,11 +34,13 @@ public class IncrementUShortRegister : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regVal = cpu.ReadUshortRegister(Register1);
         regVal++;
         cpu.WriteUshortRegister(Register1, regVal);
+
+        return Cycles;
     }
 }
 
@@ -55,7 +57,7 @@ public class IncrementRegisterInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var originalValue = cpu.ReadByteRegister(Register1);
         var regValue = (byte)(originalValue + 1);
@@ -64,6 +66,8 @@ public class IncrementRegisterInstruction : Instruction
         cpu.F.ZeroFlag = regValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = (((originalValue & 0x0F) + (1 & 0x0F)) & 0x10) == 0x10;
+
+        return Cycles;
     }
 }
 
@@ -80,7 +84,7 @@ public class IncrementAddressInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -90,5 +94,7 @@ public class IncrementAddressInstruction : Instruction
         cpu.F.ZeroFlag = value == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = (value & 0x0F) == 0x00;
+
+        return Cycles;
     }
 }

@@ -35,7 +35,7 @@ public class ShiftRegisterLeftInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var topBit = (value & 0x80) >> 7;
@@ -47,6 +47,8 @@ public class ShiftRegisterLeftInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = topBit == 1;
+        
+        return Cycles;
     }
 }
 
@@ -61,7 +63,7 @@ public class ShiftAddressLeftInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -73,6 +75,8 @@ public class ShiftAddressLeftInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = topBit == 1;
+        
+        return Cycles;
     }
 }
 
@@ -87,7 +91,7 @@ public class ShiftRegisterRightInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var bottomBit = value & 1;
@@ -100,6 +104,8 @@ public class ShiftRegisterRightInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = bottomBit == 1;
+        
+        return Cycles;
     }
 }
 
@@ -114,7 +120,7 @@ public class ShiftAddressRightInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -127,5 +133,7 @@ public class ShiftAddressRightInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = bottomBit == 1;
+        
+        return Cycles;
     }
 }

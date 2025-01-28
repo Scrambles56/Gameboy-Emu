@@ -17,7 +17,7 @@ public class LoadAddressToRegister : Instruction
         _operation = operation;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register2);
         var value = cpu.ReadByte(address);
@@ -31,6 +31,8 @@ public class LoadAddressToRegister : Instruction
         {
             cpu.WriteUshortRegister(Register2, (byte)(address - 1));
         }
+        
+        return Cycles;
     }
 }
 

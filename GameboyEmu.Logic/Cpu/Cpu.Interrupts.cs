@@ -25,11 +25,22 @@ public partial class Cpu
         _interruptsController.InterruptMasterEnabledFlag = state;
     }
     
-    
     public bool HandleInterrupts()
     {
+        if (!_interruptsController.InterruptMasterEnabledFlag && Halted)
+        {
+            return false;
+        }
+        
         var req = _interruptsController.GetRequestedInterrupt();
         if (req is not {} interrupt)
+        {
+            return false;
+        }
+
+        Halted = false;
+        
+        if (!_interruptsController.InterruptMasterEnabledFlag)
         {
             return false;
         }

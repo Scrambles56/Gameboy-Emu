@@ -16,7 +16,7 @@ public class LoadDirectToRegisterInstruction : Instruction
         Debug.Assert(InstructionSize != InstructionSize.None);
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         if (InstructionSize == InstructionSize.D8)
         {
@@ -28,5 +28,7 @@ public class LoadDirectToRegisterInstruction : Instruction
             var value = data.ToUshort();
             cpu.WriteUshortRegister(Register1, value);
         }
+        
+        return Cycles;
     }
 }

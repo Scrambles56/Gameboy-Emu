@@ -4,63 +4,14 @@ public static class ShiftRightLogicallyInstructions
 {
     public static List<Instruction> CbInstructions = new()
     {
-        new ShiftRightLogicallyInstruction(
-            0x38,
-            "SRL B",
-            8,
-            InstructionSize.None,
-            RegisterType.B
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x39,
-            "SRL C",
-            8,
-            InstructionSize.None,
-            RegisterType.C
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3A,
-            "SRL D",
-            8,
-            InstructionSize.None,
-            RegisterType.D
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3B,
-            "SRL E",
-            8,
-            InstructionSize.None,
-            RegisterType.E
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3C,
-            "SRL H",
-            8,
-            InstructionSize.None,
-            RegisterType.H
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3D,
-            "SRL L",
-            8,
-            InstructionSize.None,
-            RegisterType.L
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3E,
-            "SRL (HL)",
-            16,
-            InstructionSize.None,
-            RegisterType.HL,
-            asAddress: true
-        ),
-        new ShiftRightLogicallyInstruction(
-            0x3F,
-            "SRL A",
-            8,
-            InstructionSize.None,
-            RegisterType.A
-        )
+        new ShiftRightLogicallyInstruction( 0x38, "SRL B", 8, InstructionSize.None, RegisterType.B),
+        new ShiftRightLogicallyInstruction( 0x39, "SRL C", 8, InstructionSize.None, RegisterType.C),
+        new ShiftRightLogicallyInstruction( 0x3A, "SRL D", 8, InstructionSize.None, RegisterType.D),
+        new ShiftRightLogicallyInstruction( 0x3B, "SRL E", 8, InstructionSize.None, RegisterType.E),
+        new ShiftRightLogicallyInstruction( 0x3C, "SRL H", 8, InstructionSize.None, RegisterType.H),
+        new ShiftRightLogicallyInstruction( 0x3D, "SRL L", 8, InstructionSize.None, RegisterType.L),
+        new ShiftRightLogicallyInstruction( 0x3E, "SRL (HL)", 16, InstructionSize.None, RegisterType.HL, asAddress: true),
+        new ShiftRightLogicallyInstruction( 0x3F, "SRL A", 8, InstructionSize.None, RegisterType.A)
     };
 }
 
@@ -80,7 +31,7 @@ public class ShiftRightLogicallyInstruction : Instruction
         _asAddress = asAddress;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         byte value;
 
@@ -111,5 +62,7 @@ public class ShiftRightLogicallyInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = overflowBit == 1;
+        
+        return Cycles;
     }
 }

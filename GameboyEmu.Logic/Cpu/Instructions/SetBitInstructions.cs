@@ -88,13 +88,15 @@ public class SetRegisterBitInstruction : Instruction
         _bitIndex = bitIndex;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regValue = cpu.ReadByteRegister(Register1);
         var mask = (byte)(1 << _bitIndex);
         
         regValue |= mask;
         cpu.WriteByteRegister(Register1, regValue);
+        
+        return Cycles;
     }
 }
 
@@ -114,7 +116,7 @@ public class SetAddressBitInstruction : Instruction
         _bitIndex = bitIndex;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -122,5 +124,7 @@ public class SetAddressBitInstruction : Instruction
         
         value |= mask;
         cpu.WriteByte(address, value);
+        
+        return Cycles;
     }
 }

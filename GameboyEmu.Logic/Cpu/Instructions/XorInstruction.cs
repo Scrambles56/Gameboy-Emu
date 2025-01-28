@@ -6,79 +6,15 @@ public static class XorInstructions
 {
     public static List<Instruction> Instructions = new()
     {
-        new XorInstruction(
-            0xA8,
-            "XOR B",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.B
-        ),
-        new XorInstruction(
-            0xA9,
-            "XOR C",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.C
-        ),
-        new XorInstruction(
-            0xAA,
-            "XOR D",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.D
-        ),
-        new XorInstruction(
-            0xAB,
-            "XOR E",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.E
-        ),
-        new XorInstruction(
-            0xAC,
-            "XOR H",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.H
-        ),
-        new XorInstruction(
-            0xAD,
-            "XOR L",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.L
-        ),
-        new XorInstruction(
-            0xAE,
-            "XOR (HL)",
-            8,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.HL,
-            loadSecondRegister: true
-        ),
-        new XorInstruction(
-            0xAF,
-            "XOR A",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.A
-        ),
-        new XorInstruction(
-            0xEE,
-            "XOR d8",
-            8,
-            InstructionSize.D8,
-            RegisterType.A,
-            RegisterType.None
-        )
+        new XorInstruction( 0xA8, "XOR B", 4, InstructionSize.None, RegisterType.A, RegisterType.B),
+        new XorInstruction( 0xA9, "XOR C", 4, InstructionSize.None, RegisterType.A, RegisterType.C),
+        new XorInstruction( 0xAA, "XOR D", 4, InstructionSize.None, RegisterType.A, RegisterType.D),
+        new XorInstruction( 0xAB, "XOR E", 4, InstructionSize.None, RegisterType.A, RegisterType.E),
+        new XorInstruction( 0xAC, "XOR H", 4, InstructionSize.None, RegisterType.A, RegisterType.H),
+        new XorInstruction( 0xAD, "XOR L", 4, InstructionSize.None, RegisterType.A, RegisterType.L),
+        new XorInstruction( 0xAE, "XOR (HL)", 8, InstructionSize.None, RegisterType.A, RegisterType.HL, loadSecondRegister: true),
+        new XorInstruction( 0xAF, "XOR A", 4, InstructionSize.None, RegisterType.A, RegisterType.A),
+        new XorInstruction( 0xEE, "XOR d8", 8, InstructionSize.D8, RegisterType.A, RegisterType.None)
     };
 }
 
@@ -105,7 +41,7 @@ public class XorInstruction : Instruction
         _loadSecondRegister = loadSecondRegister;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value1 = cpu.ReadByteRegister(Register1);
         byte value2;
@@ -131,5 +67,7 @@ public class XorInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = false;
+        
+        return Cycles;
     }
 }

@@ -6,30 +6,10 @@ public static class PopInstructions
 {
     public static List<Instruction> Instructions = new()
     {
-        new PopInstruction(
-            0xC1,
-            "POP BC",
-            12,
-            RegisterType.BC
-        ),
-        new PopInstruction(
-            0xD1,
-            "POP DE",
-            12,
-            RegisterType.DE
-        ),
-        new PopInstruction(
-            0xE1,
-            "POP HL",
-            12,
-            RegisterType.HL
-        ),
-        new PopInstruction(
-            0xF1,
-            "POP AF",
-            12,
-            RegisterType.AF
-        )
+        new PopInstruction( 0xC1, "POP BC", 12, RegisterType.BC),
+        new PopInstruction( 0xD1, "POP DE", 12, RegisterType.DE),
+        new PopInstruction( 0xE1, "POP HL", 12, RegisterType.HL),
+        new PopInstruction( 0xF1, "POP AF", 12, RegisterType.AF)
     };
 }
 
@@ -43,7 +23,7 @@ public class PopInstruction : Instruction
     {
     }
 
-    public override void Execute(Cpu cpu, FetchedData data)
+    public override int Execute(Cpu cpu, FetchedData data)
     {
         var low = cpu.ReadByte(cpu.SP);
         cpu.SP++;
@@ -52,12 +32,13 @@ public class PopInstruction : Instruction
         
         var value = (ushort)((high << 8) | low);
 
-        // Courtesy of Reddit: https://www.reddit.com/r/EmuDev/comments/hi237c/gameboy_blargg_test_special01_errors_on_pop_af/
         if (Register1 == RegisterType.AF)
         {
             value = (ushort)(value & 0xFFF0);
         }
         
         cpu.WriteUshortRegister(Register1, value);
+        
+        return Cycles;
     }
 }

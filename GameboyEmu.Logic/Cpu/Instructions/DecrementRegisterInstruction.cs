@@ -24,6 +24,7 @@ public static class DecrementInstructions
             12,
             InstructionSize.None,
             RegisterType.HL,
+            RegisterType.None,
             action: (instruction, cpu, data) =>
             {
                 var address = cpu.ReadUshortRegister(instruction.Register1);
@@ -34,6 +35,8 @@ public static class DecrementInstructions
                 cpu.F.ZeroFlag = value == 0;
                 cpu.F.SubtractFlag = true;
                 cpu.F.HalfCarryFlag = (value & 0x0F) == 0x0F;
+                
+                return instruction.Cycles;
             }
         )
     };
@@ -52,11 +55,13 @@ public class DecrementUShortRegister : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regVal = cpu.ReadUshortRegister(Register1);
         regVal--;
         cpu.WriteUshortRegister(Register1, regVal);
+        
+        return Cycles;
     }
 }
 
@@ -73,7 +78,7 @@ public class DecrementRegisterInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var regVal = cpu.ReadByteRegister(Register1);
         regVal--;
@@ -82,5 +87,7 @@ public class DecrementRegisterInstruction : Instruction
         cpu.F.ZeroFlag = regVal == 0;
         cpu.F.SubtractFlag = true;
         cpu.F.HalfCarryFlag = (regVal & 0x0F) == 0x0F;
+
+        return Cycles;
     }
 }

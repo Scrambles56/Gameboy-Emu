@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
 using GameboyEmu.Logic.Cartridge;
+using GameboyEmu.Logic.Cartridge.Carts;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Gpu;
 using GameboyEmu.Logic.IOController;
 using GameboyEmu.Logic.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace GameboyEmu.Logic.Cpu;
 
@@ -17,6 +19,7 @@ public class AddressBus
     private readonly InterruptsController _interruptsController;
     private readonly VRam _vram;
     private readonly OAM _oam;
+    private readonly ILogger _logger;
 
     public AddressBus(
         LoadedCartridge cartridge, 
@@ -26,7 +29,8 @@ public class AddressBus
         IOBus ioBus,
         InterruptsController interruptsController,
         VRam vram, 
-        OAM oam
+        OAM oam,
+        ILogger logger
     )
     {
         _cartridge = cartridge;
@@ -37,6 +41,7 @@ public class AddressBus
         _interruptsController = interruptsController;
         _vram = vram;
         _oam = oam;
+        _logger = logger;
     }
 
     public byte ReadByte(ushort address)
@@ -165,6 +170,7 @@ public class AddressBus
             {
                 if (address == 0xFF46)
                 {
+                    _logger.LogInformation("Performing DMA Transfer, Value: {Value:X2}", value);
                     PerformDmaTransfer(value);
                     return;
                 }

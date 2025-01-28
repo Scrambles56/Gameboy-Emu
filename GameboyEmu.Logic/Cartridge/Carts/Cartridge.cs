@@ -1,17 +1,16 @@
-﻿using System.Diagnostics;
-using System.Text;
-using GameboyEmu.Logic.Cpu;
-using GameboyEmu.Logic.Cpu.Extensions;
-using GameboyEmu.Logic.Memory;
+﻿using System.Text;
+using Microsoft.Extensions.Logging;
 
-namespace GameboyEmu.Logic.Cartridge;
+namespace GameboyEmu.Logic.Cartridge.Carts;
 
 public class Cartridge
 {
+    private readonly ILogger _logger;
     private readonly string _fileName;
 
-    public Cartridge(string fileName)
+    public Cartridge(ILogger logger, string fileName)
     {
+        _logger = logger;
         _fileName = fileName;
     }
     
@@ -23,19 +22,22 @@ public class Cartridge
 
         return cartridgeType.MbcType switch
         {
-            MbcType.NoMbc => new LoadedCartridge(data),
-            MbcType.Mbc3 => new Mbc3Cartridge(data),
-            _ => new LoadedCartridge(data)
+            MbcType.NoMbc => new LoadedCartridge(_logger, data),
+            MbcType.Mbc1 => new Mbc1Cartridge(_logger, data),
+            MbcType.Mbc3 => new Mbc3Cartridge(_logger, data),
+            _ => throw new Exception($"Unsupported Cartridge Type {cartridgeType.MbcType.ToString()}")
         };
     }
 }
 
 public class LoadedCartridge
 {
+    protected readonly ILogger Logger;
     protected readonly byte[] Data;
 
-    public LoadedCartridge(byte[] data)
+    public LoadedCartridge(ILogger logger, byte[] data)
     {
+        Logger = logger;
         Data = data;
     }
     
@@ -57,9 +59,9 @@ public class LoadedCartridge
     
     private CartridgeType CartridgeType => new(Data[0x147]);
     
-    private ROMSize ROMSize => new(Data[0x148]);
+    protected ROMSize ROMSize => new(Data[0x148]);
 
-    private RAMSize RAMSize => new(Data[0x149]);
+    protected RAMSize RAMSize => new(Data[0x149]);
     
     public DestinationCode DestinationCode => new(Data[0x14A]);
     public OldLicenceeCode OldLicenceeCode => new(Data[0x14B]);
@@ -81,7 +83,7 @@ public class LoadedCartridge
     
     private bool HeaderChecksumIsValid => HeaderChecksum == CalculateHeaderChecksum();
     
-    public byte Read(ushort address)
+    public virtual byte Read(ushort address)
     {
         if (address < 0x8000)
         {
@@ -130,44 +132,5 @@ Cartridge
 
     EntryPoint: {{string.Join(",", EntryPointBytes.Select(b => b.ToString("X2")))}}
 """;
-    }
-}
-
-public class Mbc3Cartridge : LoadedCartridge
-{
-    public ROM RomBank00 { get; set; }
-    public RAM RamBank00 { get; set; }
-    public RAM? RamBank01 { get; set; }
-    public RAM? RamBank02 { get; set; }
-    public RAM? RamBank03 { get; set; }
-
-    public bool EnableRamAndTimer { get; set; }
-    
-    public Mbc3Cartridge(byte[] data) : base(data)
-    {
-        RomBank00 = new(16384, 0x0000, data[..0x4000]);
-        RamBank00 = new(8192, 0xA000);
-    }
-    
-    public override void Write(ushort address, byte value)
-    {
-        if (address.IsBetween(0xA000, 0xBFFF))
-        {
-            if (!EnableRamAndTimer)
-            {
-                throw new("RAM and Timer is not enabled");
-            }
-            
-            RamBank00.WriteByte(address, value);
-            return;
-        }
-        
-        if (address.IsBetween(0x0000, 0x1FFF))
-        {
-            EnableRamAndTimer = value == 0x0A;
-            return;
-        }
-        
-        throw new NotImplementedException($"Writing to MB3 Cartridge is not implemented, Address: {address:X4}, Value: {value:X2}");
     }
 }

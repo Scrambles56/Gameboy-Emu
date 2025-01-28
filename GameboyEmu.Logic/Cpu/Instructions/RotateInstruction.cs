@@ -4,233 +4,51 @@ public static class RotateInstructions
 {
     public static List<Instruction> Instructions => new()
     {
-        new RotateInstruction(
-            0x07,
-            "RLCA",
-            4,
-            RegisterType.A
-        ),
-        new RotateInstruction(
-            0x17,
-            "RLA",
-            4,
-            RegisterType.A,
-            Direction.Left,
-            true
-        ),
-        new RotateInstruction(
-            0x0F,
-            "RRCA",
-            4,
-            RegisterType.A,
-            Direction.Right
-        ),
-        new RotateInstruction(
-            0x1F,
-            "RRA",
-            4,
-            RegisterType.A,
-            Direction.Right,
-            true
-        ),
+        new RotateInstruction(0x07, "RLCA", 4, RegisterType.A),
+        new RotateInstruction(0x17, "RLA", 4, RegisterType.A, Direction.Left, true),
+        new RotateInstruction(0x0F, "RRCA", 4, RegisterType.A, Direction.Right),
+        new RotateInstruction(0x1F, "RRA", 4, RegisterType.A, Direction.Right, true),
     };
 
     public static List<Instruction> CbInstructions => new()
     {
-        new RotateRegisterRightThroughCarryInstruction(
-            0x18,
-            "RR B",
-            8,
-            RegisterType.B
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x19,
-            "RR C",
-            8,
-            RegisterType.C
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x1A,
-            "RR D",
-            8,
-            RegisterType.D
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x1B,
-            "RR E",
-            8,
-            RegisterType.E
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x1C,
-            "RR H",
-            8,
-            RegisterType.H
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x1D,
-            "RR L",
-            8,
-            RegisterType.L
-        ),
-        new RotateRegisterRightThroughCarryInstruction(
-            0x1F,
-            "RR A",
-            8,
-            RegisterType.A
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x10,
-            "RL B",
-            8,
-            RegisterType.B
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x11,
-            "RL C",
-            8,
-            RegisterType.C
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x12,
-            "RL D",
-            8,
-            RegisterType.D
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x13,
-            "RL E",
-            8,
-            RegisterType.E
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x14,
-            "RL H",
-            8,
-            RegisterType.H
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x15,
-            "RL L",
-            8,
-            RegisterType.L
-        ),
-        new RotateRegisterLeftThroughCarryInstruction(
-            0x17,
-            "RL A",
-            8,
-            RegisterType.A
-        ),
-        new RotateAddressRightThroughCarryInstruction(
-            0x1E,
-            "RR (HL)",
-            16,
-            RegisterType.HL
-        ),
-        new RotateAddressLeftThroughCarryInstruction(
-            0x16,
-            "RL (HL)",
-            16,
-            RegisterType.HL
-        ),
+        new RotateRegisterRightThroughCarryInstruction(0x18, "RR B", 8, RegisterType.B),
+        new RotateRegisterRightThroughCarryInstruction(0x19, "RR C", 8, RegisterType.C),
+        new RotateRegisterRightThroughCarryInstruction(0x1A, "RR D", 8, RegisterType.D),
+        new RotateRegisterRightThroughCarryInstruction(0x1B, "RR E", 8, RegisterType.E),
+        new RotateRegisterRightThroughCarryInstruction(0x1C, "RR H", 8, RegisterType.H),
+        new RotateRegisterRightThroughCarryInstruction(0x1D, "RR L", 8, RegisterType.L),
+        new RotateRegisterRightThroughCarryInstruction(0x1F, "RR A", 8, RegisterType.A),
         
-        new RotateRegisterLeftInstruction(
-            0x00,
-            "RLC B",
-            8,
-            RegisterType.B
-        ),
-        new RotateRegisterLeftInstruction(
-            0x01,
-            "RLC C",
-            8,
-            RegisterType.C
-        ),
-        new RotateRegisterLeftInstruction(
-            0x02,
-            "RLC D",
-            8,
-            RegisterType.D
-        ),
-        new RotateRegisterLeftInstruction(
-            0x03,
-            "RLC E",
-            8,
-            RegisterType.E
-        ),
-        new RotateRegisterLeftInstruction(
-            0x04,
-            "RLC H",
-            8,
-            RegisterType.H
-        ),
-        new RotateRegisterLeftInstruction(
-            0x05,
-            "RLC L",
-            8,
-            RegisterType.L
-        ),
-        new RotateRegisterLeftInstruction(
-            0x07,
-            "RLC A",
-            8,
-            RegisterType.A
-        ),
-        new RotateAddressLeftInstruction(
-            0x06,
-            "RLC (HL)",
-            16,
-            RegisterType.HL
-        ),
+        new RotateRegisterLeftThroughCarryInstruction(0x10, "RL B", 8, RegisterType.B),
+        new RotateRegisterLeftThroughCarryInstruction(0x11, "RL C", 8, RegisterType.C),
+        new RotateRegisterLeftThroughCarryInstruction(0x12, "RL D", 8, RegisterType.D),
+        new RotateRegisterLeftThroughCarryInstruction(0x13, "RL E", 8, RegisterType.E),
+        new RotateRegisterLeftThroughCarryInstruction(0x14, "RL H", 8, RegisterType.H),
+        new RotateRegisterLeftThroughCarryInstruction(0x15, "RL L", 8, RegisterType.L),
+        new RotateRegisterLeftThroughCarryInstruction(0x17, "RL A", 8, RegisterType.A),
         
-        new RotateRegisterRightInstruction(
-            0x08,
-            "RRC B",
-            8,
-            RegisterType.B
-        ),
-        new RotateRegisterRightInstruction(
-            0x09,
-            "RRC C",
-            8,
-            RegisterType.C
-        ),
-        new RotateRegisterRightInstruction(
-            0x0A,
-            "RRC D",
-            8,
-            RegisterType.D
-        ),
-        new RotateRegisterRightInstruction(
-            0x0B,
-            "RRC E",
-            8,
-            RegisterType.E
-        ),
-        new RotateRegisterRightInstruction(
-            0x0C,
-            "RRC H",
-            8,
-            RegisterType.H
-        ),
-        new RotateRegisterRightInstruction(
-            0x0D,
-            "RRC L",
-            8,
-            RegisterType.L
-        ),
-        new RotateRegisterRightInstruction(
-            0x0F,
-            "RRC A",
-            8,
-            RegisterType.A
-        ),
-        new RotateAddressRightInstruction(
-            0x0E,
-            "RRC (HL)",
-            16,
-            RegisterType.HL
-        ),
+        new RotateAddressRightThroughCarryInstruction(0x1E, "RR (HL)", 16, RegisterType.HL),
+        
+        new RotateAddressLeftThroughCarryInstruction(0x16, "RL (HL)", 16, RegisterType.HL),
+        
+        new RotateRegisterLeftInstruction(0x00, "RLC B", 8, RegisterType.B),
+        new RotateRegisterLeftInstruction(0x01, "RLC C", 8, RegisterType.C),
+        new RotateRegisterLeftInstruction(0x02, "RLC D", 8, RegisterType.D),
+        new RotateRegisterLeftInstruction(0x03, "RLC E", 8, RegisterType.E),
+        new RotateRegisterLeftInstruction(0x04, "RLC H", 8, RegisterType.H),
+        new RotateRegisterLeftInstruction(0x05, "RLC L", 8, RegisterType.L),
+        new RotateRegisterLeftInstruction(0x07, "RLC A", 8, RegisterType.A),
+        new RotateAddressLeftInstruction(0x06, "RLC (HL)", 16, RegisterType.HL),
+        
+        new RotateRegisterRightInstruction(0x08, "RRC B", 8, RegisterType.B),
+        new RotateRegisterRightInstruction(0x09, "RRC C", 8, RegisterType.C),
+        new RotateRegisterRightInstruction(0x0A, "RRC D", 8, RegisterType.D),
+        new RotateRegisterRightInstruction(0x0B, "RRC E", 8, RegisterType.E),
+        new RotateRegisterRightInstruction(0x0C, "RRC H", 8, RegisterType.H),
+        new RotateRegisterRightInstruction(0x0D, "RRC L", 8, RegisterType.L),
+        new RotateRegisterRightInstruction(0x0F, "RRC A", 8, RegisterType.A),
+        new RotateAddressRightInstruction(0x0E, "RRC (HL)", 16, RegisterType.HL),
     };
 }
 
@@ -255,7 +73,7 @@ public class RotateInstruction : Instruction
         _allowWrap = allowWrap;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var overflowBitNumber = _direction == Direction.Left ? 7 : 0;
@@ -276,6 +94,8 @@ public class RotateInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
         cpu.F.CarryFlag = overflowBit == 1;
+        
+        return Cycles;
     }
     
     private byte RotateLeft(byte value, int carry)
@@ -300,7 +120,7 @@ public class RotateRegisterRightThroughCarryInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var carry = cpu.F.CarryFlag ? 1 : 0;
@@ -312,6 +132,8 @@ public class RotateRegisterRightThroughCarryInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -326,7 +148,7 @@ public class RotateAddressRightThroughCarryInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -339,6 +161,8 @@ public class RotateAddressRightThroughCarryInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -353,7 +177,7 @@ public class RotateRegisterLeftThroughCarryInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var carry = cpu.F.CarryFlag ? 1 : 0;
@@ -366,6 +190,8 @@ public class RotateRegisterLeftThroughCarryInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+
+        return Cycles;
     }
 }
 
@@ -380,7 +206,7 @@ public class RotateAddressLeftThroughCarryInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -394,6 +220,8 @@ public class RotateAddressLeftThroughCarryInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -408,7 +236,7 @@ public class RotateRegisterLeftInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var topBit = (value & 0x80) >> 7;
@@ -420,6 +248,8 @@ public class RotateRegisterLeftInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -434,7 +264,7 @@ public class RotateAddressLeftInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -448,6 +278,8 @@ public class RotateAddressLeftInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -462,7 +294,7 @@ public class RotateRegisterRightInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value = cpu.ReadByteRegister(Register1);
         var bottomBit = value & 0x01;
@@ -474,6 +306,8 @@ public class RotateRegisterRightInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }
 
@@ -488,7 +322,7 @@ public class RotateAddressRightInstruction : Instruction
     {
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var address = cpu.ReadUshortRegister(Register1);
         var value = cpu.ReadByte(address);
@@ -502,5 +336,7 @@ public class RotateAddressRightInstruction : Instruction
         cpu.F.ZeroFlag = newValue == 0;
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = false;
+        
+        return Cycles;
     }
 }

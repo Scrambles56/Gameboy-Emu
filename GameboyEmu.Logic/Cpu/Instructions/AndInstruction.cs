@@ -6,79 +6,15 @@ public static class AndInstructions
 {
     public static List<Instruction> Instructions = new()
     {
-        new AndInstruction(
-            0xA0,
-            "AND B",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.B
-        ),
-        new AndInstruction(
-            0xA1,
-            "AND C",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.C
-        ),
-        new AndInstruction(
-            0xA2,
-            "AND D",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.D
-        ),
-        new AndInstruction(
-            0xA3,
-            "AND E",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.E
-        ),
-        new AndInstruction(
-            0xA4,
-            "AND H",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.H
-        ),
-        new AndInstruction(
-            0xA5,
-            "AND L",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.L
-        ),
-        new AndInstruction(
-            0xA6,
-            "AND (HL)",
-            8,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.HL,
-            loadSecondRegister: true
-        ),
-        new AndInstruction(
-            0xA7,
-            "AND A",
-            4,
-            InstructionSize.None,
-            RegisterType.A,
-            RegisterType.A
-        ),
-        new AndInstruction(
-            0xE6,
-            "AND d8",
-            8,
-            InstructionSize.D8,
-            RegisterType.A,
-            RegisterType.None
-        )
+        new AndInstruction(0xA0, "AND B", 4, InstructionSize.None, RegisterType.A, RegisterType.B),
+        new AndInstruction(0xA1, "AND C", 4, InstructionSize.None, RegisterType.A, RegisterType.C),
+        new AndInstruction(0xA2, "AND D", 4, InstructionSize.None, RegisterType.A, RegisterType.D),
+        new AndInstruction(0xA3, "AND E", 4, InstructionSize.None, RegisterType.A, RegisterType.E),
+        new AndInstruction(0xA4, "AND H", 4, InstructionSize.None, RegisterType.A, RegisterType.H),
+        new AndInstruction(0xA5, "AND L", 4, InstructionSize.None, RegisterType.A, RegisterType.L),
+        new AndInstruction(0xA6, "AND (HL)", 8, InstructionSize.None, RegisterType.A, RegisterType.HL, loadSecondRegister: true),
+        new AndInstruction(0xA7, "AND A", 4, InstructionSize.None, RegisterType.A, RegisterType.A),
+        new AndInstruction(0xE6, "AND d8", 8, InstructionSize.D8, RegisterType.A, RegisterType.None)
     };
 }
 
@@ -101,7 +37,7 @@ public class AndInstruction : Instruction
         _loadSecondRegister = loadSecondRegister;
     }
 
-    public override void Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
+    public override int Execute(GameboyEmu.Cpu.Cpu cpu, FetchedData data)
     {
         var value1 = cpu.ReadByteRegister(Register1);
         byte value2;
@@ -127,5 +63,7 @@ public class AndInstruction : Instruction
         cpu.F.SubtractFlag = false;
         cpu.F.HalfCarryFlag = true;
         cpu.F.CarryFlag = false;
+
+        return Cycles;
     }
 }

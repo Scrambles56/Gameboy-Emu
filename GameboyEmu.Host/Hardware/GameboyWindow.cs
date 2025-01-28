@@ -72,27 +72,24 @@ public static class GameboyWindow
         Raylib.DrawTexturePro(texture, srcRec, dstRec, position, 0, Color.White);
     }
 
+
+    private static readonly byte[] TileDataPxBuffer = new byte[8 * 8 * 384]; 
     private static void DrawTileData(Gpu gpu, Vector2 position)
     {
         var tiles = gpu.GetTileData().ToArray();
-        var tileWidth = 8;
-        var tileHeight = 8;
-        var tileCount = 384;
         
-        var pixelBuffer = new byte[tileWidth * tileHeight * tileCount];
-        for (var i = 0; i < pixelBuffer.Length; i++)
+        for (var i = 0; i < TileDataPxBuffer.Length; i++)
         {
-            var tileIndex = i / (tileWidth * tileHeight);
+            var tileIndex = i / (8 * 8);
             var tile = tiles[tileIndex];
-            var x = i % tileWidth;
-            var y = i / tileWidth % tileHeight;
+            var x = i % 8;
+            var y = i / 8 % 8;
             
             var pixel = tile.GetPixel(x, y);
-            pixelBuffer[i] = pixel;
+            TileDataPxBuffer[i] = pixel;
         }
         
-        
-        var texture = MakeTextureForBuffer(pixelBuffer, TileDataWidth, TileDataHeight);
+        var texture = MakeTextureForBuffer(TileDataPxBuffer, TileDataWidth, TileDataHeight);
         
         var srcRec = new Rectangle(0, 0, texture.Width, texture.Height);
         var dstRec = new Rectangle(0, 0, TileDataWidth * Scaling, TileDataHeight * Scaling);
@@ -132,7 +129,7 @@ public static class GameboyWindow
         for (var i = 0; i < pixelBuffer.Length; i++)
         {
             var b = pixelBuffer[i];
-            colors[i] = _colors[b];
+            colors[i] = Colors[b];
         }
                 
         var image = new Image
@@ -149,8 +146,9 @@ public static class GameboyWindow
         return texture;
     }
 
-    private static Dictionary<byte, Color> _colors = new(){
+    private static readonly Dictionary<byte, Color> Colors = new(){
         [0] = new Color(155,188,15, 255),
+        [33] = new Color(255, 0, 0, 255),
         [85] = new Color(139,172,15, 255),
         [170] = new Color(48,98,48, 255),
         [255] = new Color(15,56,15, 255)

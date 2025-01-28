@@ -11,7 +11,7 @@ public class InputControl(
 {
     private byte _inputState = 0b0011_0000;
     
-    private Dictionary<GbButton, bool> _buttonStates = new()
+    private readonly Dictionary<GbButton, bool> _buttonStates = new()
     {
         { GbButton.Up, false },
         { GbButton.Down, false },
@@ -40,38 +40,6 @@ public class InputControl(
         
         var isDpadSelect = !_inputState.IsBitSet(4);
         var isButtonSelect = !_inputState.IsBitSet(5);
-
-        if (isDpadSelect)
-        {
-            result = _buttonStates[GbButton.Down] ? result.ClearBit(3) : result;
-            result = _buttonStates[GbButton.Up] ? result.ClearBit(2) : result;
-            result = _buttonStates[GbButton.Left] ? result.ClearBit(1) : result;
-            result = _buttonStates[GbButton.Right] ? result.ClearBit(0) : result;
-        }
-        
-        if (isButtonSelect)
-        {
-            result = _buttonStates[GbButton.Start] ? result.ClearBit(3) : result;
-            result = _buttonStates[GbButton.Select] ? result.ClearBit(2) : result;
-            result = _buttonStates[GbButton.B] ? result.ClearBit(1) : result;
-            result = _buttonStates[GbButton.A] ? result.ClearBit(0) : result;
-        }
-        
-        result = isDpadSelect ? result.ClearBit(4) : result;
-        result = isButtonSelect ? result.ClearBit(5) : result;
-        
-        if (_buttonStates.Any(b => b.Value))
-        {
-            var buttons = string.Join(", ", _buttonStates.Where(b => b.Value).Select(b => b.Key.ToString()));
-            logger.LogInformation("PressedButtons: {Buttons}, Result: {Result}", buttons, ((byte)result).ToBinaryString());
-        }
-
-        return result;
-    }
-    
-    private byte GetInputState(bool isDpadSelect, bool isButtonSelect)
-    {
-        byte result = 0x3F;
 
         if (isDpadSelect)
         {

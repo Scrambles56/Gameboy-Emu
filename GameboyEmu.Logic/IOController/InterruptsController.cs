@@ -56,12 +56,6 @@ public class InterruptsController  : IMemoryAddressable
 
     public Interrupt? GetRequestedInterrupt()
     {
-        if (!InterruptMasterEnabledFlag)
-        {
-            return null;
-        }
-
-
         var requested = _requestedInterrupts & _enabledInterrupts;
 
         // Return first enabled interrupt, from smallest bit
