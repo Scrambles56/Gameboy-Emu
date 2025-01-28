@@ -81,7 +81,6 @@ public partial class Cpu
     private FetchedData? FetchedData { get; set; }
 
     public bool CbMode = false;
-    private readonly Dictionary<string, int> _executedInstructions = new();
 
     public Cpu(
         AddressBus addressBus,
@@ -106,6 +105,8 @@ public partial class Cpu
     public byte ReadByte(ushort address) => _addressBus.ReadByte(address);
 
     public const decimal ClockSpeed = 4194304.0m;
+
+    public Instruction? CurrentInstruction = null;
 
     /// <summary>
     /// Returns executed instruction length
@@ -135,6 +136,7 @@ public partial class Cpu
 
         if (instruction is not null)
         {
+            CurrentInstruction = instruction;
             FetchedData = instruction.FetchData(this);
             cycles = instruction.Execute(this, FetchedData);
 
@@ -142,9 +144,8 @@ public partial class Cpu
             {
                 LogGbDocState();
             }
-
-            _executedInstructions[instruction.Mnemonic] =
-                _executedInstructions.TryGetValue(instruction.Mnemonic, out var counter) ? counter + 1 : 1;
+            
+            CurrentInstruction = null;
         }
         else
         {
