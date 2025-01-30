@@ -112,11 +112,14 @@ public partial class Cpu
     /// Returns executed instruction length
     /// </summary>
     /// <returns></returns>
-    public int Step()
+    public void Step(out int cycles)
     {
+        cycles = -1;
+        
         if (HandleInterrupts())
         {
-            return 20;
+            cycles = 20;
+            return;
         }
 
         if (_interruptsController.SetInterruptMasterEnabledFlag)
@@ -127,12 +130,12 @@ public partial class Cpu
         
         if (Halted)
         {
-            return 4;
+            cycles = 4;
+            return;
         }
 
         var opCode = ReadNextByte();
         var instruction = GetInstruction(opCode, this);
-        int cycles = -1;
 
         if (instruction is not null)
         {
@@ -161,8 +164,6 @@ public partial class Cpu
         {
             throw new("Instruction not found");
         }
-        
-        return cycles;
     }
     
 

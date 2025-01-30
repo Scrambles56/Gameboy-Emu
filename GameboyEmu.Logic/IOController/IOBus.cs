@@ -7,17 +7,23 @@ namespace GameboyEmu.Logic.IOController;
 public class IOBus(
     LcdControl lcdControl,
     InputControl inputControl,
+    TimerController timerController,
     InterruptsController interruptsController
 ) : IMemoryAddressable
 {
     private readonly ushort _lowerBound = 0xFF00;
     private readonly byte[] _data = new byte[128];
-
+    
     public byte ReadByte(ushort address)
     {
         if (address == 0xFF00)
         {
             return inputControl.ReadByte(address);
+        }
+        
+        if (address.IsBetween(0xFF04, 0xFF07))
+        {
+            return timerController.ReadByte(address);
         }
 
         if (address == 0xFF0F)
@@ -38,6 +44,12 @@ public class IOBus(
         if (address == 0xFF00)
         {
             inputControl.WriteByte(address, value);
+            return;
+        }
+        
+        if (address.IsBetween(0xFF04, 0xFF07))
+        {
+            timerController.WriteByte(address, value);
             return;
         }
 

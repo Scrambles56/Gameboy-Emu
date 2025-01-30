@@ -58,6 +58,7 @@ msLogger.LogInformation("Cartridge loaded: {Cartridge}", cartridge);
 
 var controller = new Controller();
 var interruptsController = new InterruptsController();
+var timer = new TimerController(interruptsController);
 var vram = new VRam();
 var oam = new OAM();
 var lcdControl = new LcdControl(msLogger, docMode);
@@ -66,7 +67,7 @@ var inputControl = new InputControl(interruptsController, msLogger);
 var lowerWorkram = new WorkRAM(0xC000);
 var upperWorkram = new WorkRAM(0xD000);
 var highRam = new HighRam();
-var ioBus = new IOBus(lcdControl, inputControl, interruptsController);
+var ioBus = new IOBus(lcdControl, inputControl, timer, interruptsController);
 var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam, msLogger);
 
 
@@ -108,9 +109,10 @@ var cpuTask = Task.Run(() =>
         {
             if (instructionDelay == 0)
             {
-                instructionDelay = cpu.Step();
+                cpu.Step(out instructionDelay);
             }
             
+            timer.Tick();
             gpu.Tick();
             instructionDelay--;
         }
