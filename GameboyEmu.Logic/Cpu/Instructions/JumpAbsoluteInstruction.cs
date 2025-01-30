@@ -81,7 +81,7 @@ public class JumpRelativeInstruction : Instruction
         var offset = (sbyte)data.ToByte();
         
         var pcVal = (ushort)(cpu.PC + offset);
-        cpu.PC = pcVal;
+        cpu.PC.SetValue(pcVal);
         return Cycles;
     }
 }

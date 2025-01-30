@@ -68,15 +68,16 @@ public static class LoadInstructions
             RegisterType.None,
             action: (instruction, cpu, data) =>
             {
+                var param = data.ToByte();
                 var sp = cpu.SP;
-                var e8 = data.ToByte();
-                var result = sp + e8;
-                cpu.WriteUshortRegister(RegisterType.HL, result);
-        
+                var signedParam = (sbyte)data.ToByte();
+                var result = sp + signedParam;
+                cpu.WriteUshortRegister(RegisterType.HL, (ushort)result);
+                
                 cpu.F.ZeroFlag = false;
                 cpu.F.SubtractFlag = false;
-                cpu.F.HalfCarryFlag = (sp & 0x0F) + (e8 & 0x0F) > 0xF;
-                cpu.F.CarryFlag = (sp & 0xFF) + e8 > 0xFF;
+                cpu.F.HalfCarryFlag = (sp & 0x0F) + (param & 0x0F) > 0xF;
+                cpu.F.CarryFlag = (sp & 0xFF) + param > 0xFF;
                 
                 return instruction.Cycles;
             }
