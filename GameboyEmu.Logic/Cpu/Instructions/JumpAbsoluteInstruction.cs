@@ -47,7 +47,7 @@ public class JumpAbsoluteInstruction : Instruction
             return 12;
         }
         
-        cpu.PC = data.ToUshort();
+        cpu.PC.SetValue(data.ToUshort());
         return Cycles;
     }
 }

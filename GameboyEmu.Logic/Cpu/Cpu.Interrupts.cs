@@ -45,14 +45,6 @@ public partial class Cpu
             return false;
         }
 
-        if (!DocMode)
-        {
-            if (!interrupt.OneOf(Interrupt.VBlank))
-            {
-                _logger.LogInformation("Handling interrupt {InterruptType}", interrupt.ToString());
-            }
-        }
-
         _interruptsController.ClearInterrupt(interrupt);
         _interruptsController.InterruptMasterEnabledFlag = false;
         

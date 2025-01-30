@@ -54,7 +54,10 @@ if (rom == null)
 }
 
 var cartridge = AsyncContext.Run(async () => await new Cartridge(msLogger, rom).Load());
-msLogger.LogInformation("Cartridge loaded: {Cartridge}", cartridge);
+if (!docMode)
+{
+    msLogger.LogInformation("Cartridge loaded: {Cartridge}", cartridge);
+}
 
 var controller = new Controller();
 var interruptsController = new InterruptsController();

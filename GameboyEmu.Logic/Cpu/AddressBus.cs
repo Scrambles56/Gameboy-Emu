@@ -68,7 +68,7 @@ public class AddressBus
 
             if (address.IsBetween(0xA000, 0xBFFF))
             {
-                throw new NotImplementedException($"Not implemented reads for External RAM, Address: {address:X4}");
+                return _cartridge.Read(address);
             }
 
             if (address.IsBetween(0xC000, 0xCFFF))
@@ -138,7 +138,8 @@ public class AddressBus
 
             if (address.IsBetween(0xA000, 0xBFFF))
             {
-                throw new NotImplementedException($"Not implemented writes for External RAM, Address: {address:X4}");
+                _cartridge.Write(address, value);
+                return;
             }
 
             if (address.IsBetween(0xC000, 0xCFFF))

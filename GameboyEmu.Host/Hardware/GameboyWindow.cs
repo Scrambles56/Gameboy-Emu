@@ -17,8 +17,8 @@ public static class GameboyWindow
     private const int OamDataWidth = 500;
     private const int OamDataHeight = 500;
 
-    private const bool ShowTileData = true;
-    private const bool ShowOamData = true;
+    private const bool ShowTileData = false;
+    private const bool ShowOamData = false;
     
     public static void Open(Cpu.Cpu cpu, Gpu gpu, CancellationToken token)
     {

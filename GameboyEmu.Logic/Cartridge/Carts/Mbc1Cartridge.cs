@@ -27,9 +27,12 @@ public class Mbc1Cartridge : LoadedCartridge
             RomBanks[i] = new ROM(0x4000, 0x4000, data[(i * 0x4000)..((i + 1) * 0x4000)]);
         }
         
-        SelectedRomBank = RomBanks[0];
+        SelectedRomBank = RomBanks[1];
         
         RamBank00 = new(8192, 0xA000);
+        RamBank01 = new(8192, 0xA000);
+        RamBank02 = new(8192, 0xA000);
+        RamBank03 = new(8192, 0xA000);
     }
 
     public override void Write(ushort address, byte value)
@@ -40,7 +43,17 @@ public class Mbc1Cartridge : LoadedCartridge
         }
         else if (address.IsBetween(0x2000, 0x3FFF))
         {
-            var bank = value & ROMSize.BankSelectMask;
+            int bank = value;
+            if (bank == 0x00)
+            {
+                bank = 0x01;
+            }
+            
+            if (bank > ROMSize.Banks)
+            {
+                bank = value & ROMSize.BankSelectMask;
+            }
+            
             SelectedRomBankIndex = bank;
             SelectedRomBank = RomBanks[SelectedRomBankIndex];
         }
@@ -132,7 +145,12 @@ public class Mbc1Cartridge : LoadedCartridge
                     return RamBank03.ReadByte((ushort)(address - 0xA000));
                 }
             }
+            else
+            {
+                return 0xFF;
+            }
         }
+        
         return 0xFF;
     }
 }
