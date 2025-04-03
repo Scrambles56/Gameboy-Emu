@@ -1,6 +1,4 @@
-﻿using GameboyEmu.Logic.Cpu.Extensions;
-
-namespace GameboyEmu.Logic.Cpu.Instructions;
+﻿namespace GameboyEmu.Logic.Cpu.Instructions;
 
 public static class Instructions
 {

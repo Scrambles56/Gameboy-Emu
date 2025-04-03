@@ -29,10 +29,10 @@ public abstract class RestrictedRam
 
     public virtual byte ReadByte(ushort address, AccessSource accessSource)
     {
-        // if ((AllowedSources & accessSource) == 0)
-        // {
-        //     throw new InvalidOperationException("Access not allowed");
-        // }
+        /*if ((AllowedSources & accessSource) == 0)
+        {
+            throw new InvalidOperationException("Access not allowed");
+        }*/
         
         var indexAddress = address - LowerBound;
         return Data[indexAddress];

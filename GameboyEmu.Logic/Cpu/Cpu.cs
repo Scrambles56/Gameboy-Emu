@@ -1,5 +1,4 @@
-﻿using System.Text;
-using GameboyEmu.Logic.Cpu;
+﻿using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Cpu.Instructions;
 using GameboyEmu.Logic.IOController;

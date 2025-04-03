@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace GameboyEmu.Logic.Memory;
 
 public class RAM : IMemoryAddressable

@@ -1,10 +1,8 @@
-using System.Diagnostics;
 using GameboyEmu.Logic.IOController;
 
 namespace GameboyEmu.Logic.Gpu;
 
 using Cpu;
-using Cpu.Extensions;
 
 public class Gpu(
     VRam vram,

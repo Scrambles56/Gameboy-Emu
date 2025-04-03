@@ -1,5 +1,4 @@
 using GameboyEmu.Logic.Cpu.Extensions;
-using GameboyEmu.Logic.Gpu;
 using GameboyEmu.Logic.Memory;
 
 namespace GameboyEmu.Logic.IOController;

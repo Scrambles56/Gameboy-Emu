@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace GameboyEmu.Logic.Cpu.Extensions;
 
 public static class Extensions

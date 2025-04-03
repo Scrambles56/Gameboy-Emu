@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using GameboyEmu.Logic.Cartridge;
 using GameboyEmu.Logic.Cartridge.Carts;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Gpu;
