@@ -2,9 +2,11 @@ using GameboyEmu.Logic.Memory;
 
 namespace GameboyEmu.Logic.IOController;
 
+using System.Diagnostics;
+using Extensions;
 using Microsoft.Extensions.Logging;
 
-public class LcdControl(ILogger logger, bool docMode) : RAM(12, 0xFF40)
+public class LcdControl(ILogger logger, InterruptsController interruptsController, bool docMode) : RAM(12, 0xFF40)
 {
     public override byte ReadByte(ushort address)
     {
@@ -13,46 +15,50 @@ public class LcdControl(ILogger logger, bool docMode) : RAM(12, 0xFF40)
         {
             return 0x90;
         }
+        
+        if (address == 0xFF41 && !LcdAndPpuEnabled)
+        {
+            return Data[address - LowerBound].ClearBit(0).ClearBit(1);
+        }
 
         return Data[address - LowerBound];
     }
 
     public override void WriteByte(ushort address, byte value)
     {
-        if (!docMode && address == 0xFF40)
-        {
-            var oldState = new LcdFlags(
-                LcdAndPpuEnabled,
-                WindowTileMapDisplaySelect,
-                WindowDisplayEnable,
-                BackgroundAndWindowTileDataSelect,
-                BackgroundTileMapDisplaySelect,
-                ObjectSize,
-                ObjectEnable,
-                BackgroundAndWindowEnable
-            );
-
-            Data[address - LowerBound] = value;
-
-            var newState = new LcdFlags(
-                LcdAndPpuEnabled,
-                WindowTileMapDisplaySelect,
-                WindowDisplayEnable,
-                BackgroundAndWindowTileDataSelect,
-                BackgroundTileMapDisplaySelect,
-                ObjectSize,
-                ObjectEnable,
-                BackgroundAndWindowEnable
-            );
-
-
-            newState.LogChangedFlags(oldState, logger);
-        }
-
+        var oldValue = Data[address - LowerBound];
         Data[address - LowerBound] = value;
+        
+        if (address == 0xFF41)
+        {
+            if (oldValue == value)
+            {
+                return;
+            }
+
+            var oldLycEq = oldValue.IsBitSet((int)LcdStatusFlag.LycEq);
+            var newLycEq = value.IsBitSet((int)LcdStatusFlag.LycEq);
+        
+            if (oldLycEq != newLycEq && value.IsBitSet((int)LcdStatusFlag.LycSelect))
+            {
+                interruptsController.RequestInterrupt(Interrupt.LcdStat);
+            }
+        }
     }
 
-    private bool IsBitSet(byte value, int bit) => (value & (1 << bit)) != 0;
+    public void WriteLcdStatusFlag(LcdStatusFlag flag, bool state)
+    {
+        var currentValue = ReadByte(0xFF41);
+        
+        var bitIndex = (int)flag;
+        var newValue = state 
+            ? currentValue.SetBit(bitIndex)
+            : currentValue.ClearBit(bitIndex);
+
+        WriteByte(0xFF41, newValue);
+    }
+
+    public static bool IsBitSet(byte value, int bit) => (value & (1 << bit)) != 0;
 
     private byte LcdControlByte => ReadByte(0xFF40);
 
@@ -66,70 +72,32 @@ public class LcdControl(ILogger logger, bool docMode) : RAM(12, 0xFF40)
     public bool BackgroundAndWindowEnable => IsBitSet(LcdControlByte, 0);
 }
 
-file record LcdFlags(
-    bool LcdAndPpuEnabled,
-    bool WindowTileMapDisplaySelect,
-    bool WindowDisplayEnable,
-    bool BackgroundAndWindowTileDataSelect,
-    bool BackgroundTileMapDisplaySelect,
-    bool ObjectSize,
-    bool ObjectEnable,
-    bool BackgroundAndWindowEnable
-)
+public enum LcdStatusFlag
 {
-    public void LogChangedFlags(LcdFlags oldState, ILogger logger)
+    PPUModeLowBit = 0,
+    PPUModeHighBit = 1,
+    LycEq = 2,
+    Mode0Select = 3,
+    Mode1Select = 4,
+    Mode2Select = 5,
+    LycSelect = 6
+}
+
+file class LcdStatusHandler(InterruptsController interruptsController, byte oldState, byte newState)
+{
+    public void HandleLcdStatusChange()
     {
-        if (LcdAndPpuEnabled != oldState.LcdAndPpuEnabled)
+        if (oldState == newState)
         {
-            logger.LogInformation("LcdAndPpuEnabled changed from {OldStateLcdAndPpuEnabled} to {LcdAndPpuEnabled}",
-                oldState.LcdAndPpuEnabled, LcdAndPpuEnabled);
+            return;
         }
 
-        if (WindowTileMapDisplaySelect != oldState.WindowTileMapDisplaySelect)
+        var oldLycEq = oldState.IsBitSet((int)LcdStatusFlag.LycEq);
+        var newLycEq = newState.IsBitSet((int)LcdStatusFlag.LycEq);
+        
+        if (oldLycEq != newLycEq && newState.IsBitSet((int)LcdStatusFlag.LycSelect))
         {
-            logger.LogInformation(
-                "WindowTileMapDisplaySelect changed from {OldStateWindowTileMapDisplaySelect} to {WindowTileMapDisplaySelect}",
-                oldState.WindowTileMapDisplaySelect, WindowTileMapDisplaySelect);
-        }
-
-        if (WindowDisplayEnable != oldState.WindowDisplayEnable)
-        {
-            logger.LogInformation(
-                "WindowDisplayEnable changed from {OldStateWindowDisplayEnable} to {WindowDisplayEnable}",
-                oldState.WindowDisplayEnable, WindowDisplayEnable);
-        }
-
-        if (BackgroundAndWindowTileDataSelect != oldState.BackgroundAndWindowTileDataSelect)
-        {
-            logger.LogInformation(
-                "BackgroundAndWindowTileDataSelect changed from {OldStateBackgroundAndWindowTileDataSelect} to {BackgroundAndWindowTileDataSelect}",
-                oldState.BackgroundAndWindowTileDataSelect, BackgroundAndWindowTileDataSelect);
-        }
-
-        if (BackgroundTileMapDisplaySelect != oldState.BackgroundTileMapDisplaySelect)
-        {
-            logger.LogInformation(
-                "BackgroundTileMapDisplaySelect changed from {OldStateBackgroundTileMapDisplaySelect} to {BackgroundTileMapDisplaySelect}",
-                oldState.BackgroundTileMapDisplaySelect, BackgroundTileMapDisplaySelect);
-        }
-
-        if (ObjectSize != oldState.ObjectSize)
-        {
-            logger.LogInformation("ObjectSize changed from {OldStateObjectSize} to {ObjectSize}", oldState.ObjectSize,
-                ObjectSize);
-        }
-
-        if (ObjectEnable != oldState.ObjectEnable)
-        {
-            logger.LogInformation("ObjectEnable changed from {OldStateObjectEnable} to {ObjectEnable}",
-                oldState.ObjectEnable, ObjectEnable);
-        }
-
-        if (BackgroundAndWindowEnable != oldState.BackgroundAndWindowEnable)
-        {
-            logger.LogInformation(
-                "BackgroundAndWindowEnable changed from {OldStateBackgroundAndWindowEnable} to {BackgroundAndWindowEnable}",
-                oldState.BackgroundAndWindowEnable, BackgroundAndWindowEnable);
+            interruptsController.RequestInterrupt(Interrupt.LcdStat);
         }
     }
-};
+}

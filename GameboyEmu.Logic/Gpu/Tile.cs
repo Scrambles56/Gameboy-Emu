@@ -9,22 +9,26 @@ public class Tile
         Data = new byte[64];
     }
 
-    public Tile(byte[] data)
+    public Tile(byte[] data, bool mirrorX, bool mirrorY)
     {
         Data = new byte[64];
-        SetData(data);
+        SetData(data, mirrorX, mirrorY);
     }
     
-    public void SetData(byte[] data)
+    public void SetData(byte[] data, bool mirrorX, bool mirrorY)
     {
         for (var y = 0; y < 8; y++)
         {
-            var low = data[y * 2];
-            var high = data[y * 2 + 1];
+            var yIndex = mirrorY  ? 7 - y : y;
+            
+            var low = data[yIndex * 2];
+            var high = data[yIndex * 2 + 1];
             
             for (var x = 0; x < 8; x++)
             {
-                var bit = 7 - x;
+                var xIndex = mirrorX ? 7 - x : x;
+                
+                var bit = 7 - xIndex;
                 var lowBit = (low >> bit) & 1;
                 var highBit = (high >> bit) & 1;
                 var index = y * 8 + x;
@@ -85,5 +89,5 @@ public class Tile
         0x81,
         0x81,
         0xFF
-    ]);
+    ], false, false);
 }

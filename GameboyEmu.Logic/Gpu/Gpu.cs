@@ -35,13 +35,22 @@ public class Gpu(
         var timingX = framePointer % TimingWidth;
         var timingY = framePointer / TimingWidth;
 
-        lcdControl.WriteByte(0xFF44, (byte)timingY);
+        if (timingX == 0)
+        {
+            lcdControl.WriteByte(0xFF44, (byte)timingY);
+            var lyc = lcdControl.ReadByte(0xFF45);
+            lcdControl.WriteLcdStatusFlag(LcdStatusFlag.LycEq, timingY == lyc);
+        }
+
 
         if (timingY >= 144)
         {
             if (timingY == 144 && timingX == 0)
             {
                 interruptsController.RequestInterrupt(Interrupt.VBlank);
+                
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeHighBit, false);
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeLowBit, true);
             }
         }
         else if (timingX < 80)
@@ -49,6 +58,9 @@ public class Gpu(
             if (timingX == 0)
             {
                 oam.AllowedSources = AccessSource.Gpu;
+                
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeHighBit, true);
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeLowBit, false);
             }
             // OAM search time
         }
@@ -57,6 +69,9 @@ public class Gpu(
             if (timingX == 80)
             {
                 vram.AllowedSources = AccessSource.Gpu;
+                
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeHighBit, true);
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeLowBit, true);
             }
 
             var pxPointer = (int)(PxCounter % (ScreenWidth * ScreenHeight));
@@ -75,6 +90,9 @@ public class Gpu(
             {
                 vram.AllowedSources = AccessSource.GpuCpu;
                 oam.AllowedSources = AccessSource.GpuCpu;
+                
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeHighBit, false);
+                lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeLowBit, false);
             }
             // HBlank time
         }
@@ -89,6 +107,9 @@ public class Gpu(
         public byte X { get; private set; }
         public byte TileId { get; private set; }
         public byte Flags { get; private set; }
+        
+        public bool MirrorX => (Flags & 0b00100000) != 0;
+        public bool MirrorY => (Flags & 0b01000000) != 0;
         
         public void SetData(byte y, byte x, byte tileId, byte flags)
         {
@@ -150,8 +171,8 @@ public class Gpu(
 
         void SetTileData(int idx, byte[] data)
         {
-            TileDataTiles[idx] ??= new Tile(data);
-            TileDataTiles[idx].SetData(data);
+            TileDataTiles[idx] ??= new Tile(data, false, false);
+            TileDataTiles[idx].SetData(data, false, false);
         }
     }
 
@@ -167,17 +188,25 @@ public class Gpu(
         // Next we need to find the tile number
         var tileId = vram.ReadByte((ushort)(0x9800 + tileY * 32 + tileX), AccessSource.Gpu);
 
-        return GetTile(tileId);
+        return GetTile(TileSource.Bg, tileId, false, false);
     }
 
-    private Tile GetTile(byte tileId)
+    private Tile GetTile(TileSource source, byte tileId, bool mirrorX, bool mirrorY)
     {
         for (var i = 0; i < 16; i++)
         {
-            _bgTileData[i] = vram.ReadByte((ushort)(0x8000 + tileId * 16 + i), AccessSource.Gpu);
+            ushort baseAddress = 0x8000;
+            if (source == TileSource.Bg 
+                && !lcdControl.BackgroundAndWindowTileDataSelect 
+                && tileId < 128)
+            {
+                baseAddress = 0x9000;
+            }
+            
+            _bgTileData[i] = vram.ReadByte((ushort)(baseAddress + tileId * 16 + i), AccessSource.Gpu); 
         }
 
-        _bgTile.SetData(_bgTileData);
+        _bgTile.SetData(_bgTileData, mirrorX, mirrorY);
         return _bgTile;
     }
 
@@ -199,17 +228,17 @@ public class Gpu(
             {
                 continue;
             }
-            
-            var pxXToOam = x / 8 * 8;
-            var pxYToOam = y / 8 * 8;
 
             const int oamXOffset = 8;
             const int oamYOffset = 16;
             
             
-            if (pxXToOam == OamData.X - oamXOffset && pxYToOam == OamData.Y - oamYOffset)
+            var isInXBounds = (OamData.X - oamXOffset) <= x && x < OamData.X;
+            var isInYBounds = (OamData.Y - oamYOffset) <= y && y < (OamData.Y - oamYOffset + 8);
+            
+            if (isInXBounds && isInYBounds)
             {
-                return GetTile(OamData.TileId);
+                return GetTile(TileSource.Oam, OamData.TileId, OamData.MirrorX, OamData.MirrorY);
             }
         }
 
@@ -242,11 +271,23 @@ public class Gpu(
 
         if (tile is not null)
         {
-            var color = tile.GetPixel(x % 8, y % 8);
+            var oamX = OamData.X - 8;
+            var oamY = OamData.Y - 16;
+            
+            var nX = x - oamX;
+            var nY = y - oamY;
+            
+            var color = tile.GetPixel(nX, nY);
             if (color != 0)
             {
                 FrameBuffer[x + y * ScreenWidth] = color;
             }
         }
+    }
+    
+    public enum TileSource
+    {
+        Bg,
+        Oam
     }
 }

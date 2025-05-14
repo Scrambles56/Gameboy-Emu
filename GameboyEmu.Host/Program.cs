@@ -63,7 +63,7 @@ var interruptsController = new InterruptsController();
 var timer = new TimerController(interruptsController);
 var vram = new VRam();
 var oam = new OAM();
-var lcdControl = new LcdControl(msLogger, docMode);
+var lcdControl = new LcdControl(msLogger, interruptsController, docMode);
 var inputControl = new InputControl(interruptsController, msLogger);
 
 var lowerWorkram = new WorkRAM(0xC000);

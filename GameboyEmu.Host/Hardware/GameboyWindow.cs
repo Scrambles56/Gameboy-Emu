@@ -18,7 +18,7 @@ public static class GameboyWindow
     private const int OamDataHeight = 500;
 
     private const bool ShowTileData = false;
-    private const bool ShowOamData = false;
+    private const bool ShowOamData = true;
     
     public static void Open(Cpu.Cpu cpu, Gpu gpu, CancellationToken token)
     {
@@ -142,6 +142,8 @@ public static class GameboyWindow
 
     private static readonly Dictionary<byte, Color> Colors = new(){
         [0] = new Color(155,188,15, 255),
+        [1] = new Color(255, 0, 0, 255),
+        [2] = new Color(0, 255, 0, 255),
         [33] = new Color(255, 0, 0, 255),
         [85] = new Color(139,172,15, 255),
         [170] = new Color(48,98,48, 255),

@@ -2,6 +2,7 @@ namespace GameboyEmu.Cpu;
 
 using Logic.Cpu.Extensions;
 using Logic.IOController;
+using Microsoft.Extensions.Logging;
 
 public partial class Cpu
 {

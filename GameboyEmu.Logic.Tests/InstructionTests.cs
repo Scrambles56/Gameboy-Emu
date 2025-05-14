@@ -52,7 +52,7 @@ public class InstructionTests
         var upperWorkram = new WorkRAM(0xD000);
         var oam = new OAM();
         var highRam = new HighRam();
-        var lcdControl = new LcdControl(logger, false);
+        var lcdControl = new LcdControl(logger,  interruptsController, false);
         var inputControl = new InputControl(interruptsController, logger);
         var ioBus = new IOBus(lcdControl, inputControl, timer, interruptsController);
         var addressBus = new AddressBus(cartridge, lowerWorkram, upperWorkram, highRam, ioBus, interruptsController, vram, oam, logger);
