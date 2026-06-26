@@ -1,4 +1,4 @@
-﻿using GameboyEmu.Logic.Cpu;
+using GameboyEmu.Logic.Cpu;
 using GameboyEmu.Logic.Cpu.Extensions;
 using GameboyEmu.Logic.Cpu.Instructions;
 using GameboyEmu.Logic.IOController;
@@ -114,8 +114,8 @@ public partial class Cpu
     public void Step(out int cycles)
     {
         cycles = -1;
-        
-        if (HandleInterrupts())
+
+        if (!CbMode && HandleInterrupts())
         {
             cycles = 20;
             return;

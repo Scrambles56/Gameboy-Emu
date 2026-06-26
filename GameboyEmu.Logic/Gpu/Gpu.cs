@@ -40,6 +40,10 @@ public class Gpu(
             lcdControl.WriteByte(0xFF44, (byte)timingY);
             var lyc = lcdControl.ReadByte(0xFF45);
             lcdControl.WriteLcdStatusFlag(LcdStatusFlag.LycEq, timingY == lyc);
+            if (timingY == 0)
+            {
+                PxCounter = 0;
+            }
         }
 
 
@@ -74,15 +78,18 @@ public class Gpu(
                 lcdControl.WriteLcdStatusFlag(LcdStatusFlag.PPUModeLowBit, true);
             }
 
-            var pxPointer = (int)(PxCounter % (ScreenWidth * ScreenHeight));
-            var pxX = pxPointer % ScreenWidth;
-            var pxY = pxPointer / ScreenWidth;
+            if (timingX - 80 < ScreenWidth)
+            {
+                var pxPointer = (int)(PxCounter % (ScreenWidth * ScreenHeight));
+                var pxX = pxPointer % ScreenWidth;
+                var pxY = pxPointer / ScreenWidth;
 
-            // Pixel transfer time
-            DrawBgPx(pxX, pxY);
-            DrawOamPx(pxX, pxY);
+                // Pixel transfer time
+                DrawBgPx(pxX, pxY);
+                DrawOamPx(pxX, pxY);
 
-            PxCounter++;
+                PxCounter++;
+            }
         }
         else
         {
